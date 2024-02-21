@@ -1,0 +1,11 @@
+/build/*
+/dist/*
+.local
+.output.js
+/node_modules/**
+package-lock.json
+
+**/*.svg
+**/*.sh
+
+/public/*
