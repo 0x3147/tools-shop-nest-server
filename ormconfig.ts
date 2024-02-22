@@ -30,9 +30,6 @@ const buildConnectionOptions = () => {
     entities: [`${__dirname}/**/*.entity{.ts,.js}`],
     poolSize: 10,
     connectorPackage: 'mysql2',
-    extra: {
-      authPlugin: 'sha256_password'
-    }
   } as TypeOrmModuleOptions
 }
 
