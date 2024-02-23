@@ -29,7 +29,7 @@ const buildConnectionOptions = () => {
     logging: false,
     entities: [`${__dirname}/**/*.entity{.ts,.js}`],
     poolSize: 10,
-    connectorPackage: 'mysql2',
+    connectorPackage: 'mysql2'
   } as TypeOrmModuleOptions
 }
 
