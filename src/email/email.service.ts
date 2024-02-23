@@ -22,7 +22,7 @@ export class EmailService {
     await this.transporter.sendMail({
       from: {
         name: '工具商城-系统提示',
-        address: ''
+        address: this.configService.get('EMAIL_USER')
       },
       to,
       subject,
