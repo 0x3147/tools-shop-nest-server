@@ -5,6 +5,7 @@ import Redis from 'ioredis'
 import { connectionParams } from '../ormconfig'
 import { WinstonModule } from './common/winston.module'
 import { UserModule } from './user/user.module'
+import { SnowFlakeModule } from './snow-flake/snow-flake.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { UserModule } from './user/user.module'
       isGlobal: true,
       envFilePath: `.env${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ''}`
     }),
-    UserModule
+    UserModule,
+    SnowFlakeModule
   ],
   controllers: [],
   providers: [

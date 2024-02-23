@@ -17,7 +17,7 @@ export class User {
     comment: '业务id',
     type: 'bigint'
   })
-  postId: number
+  postId: number | bigint
 
   @Column({
     comment: '用户名',
