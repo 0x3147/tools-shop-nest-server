@@ -10,9 +10,9 @@ import {
   ToolsShopExceptionEnumDesc
 } from '../exception/toolsShopExceptionEnum'
 import { SnowFlakeService } from '../snow-flake/snow-flake.service'
+import { handleEncrypt } from '../util/argon2Util'
 import { RegisterUserDto } from './dto/registerUser.dto'
 import { User } from './entity/user.entity'
-import {handleEncrypt} from '../util/argon2Util'
 
 @Injectable()
 export class UserService {
@@ -25,7 +25,7 @@ export class UserService {
   @Inject('REDIS_CLIENT')
   private redisClient: Redis
 
-  @Inject()
+  @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService
 
   async register(user: RegisterUserDto) {
