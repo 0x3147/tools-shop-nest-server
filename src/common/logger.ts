@@ -1,6 +1,6 @@
 import { type LoggerService } from '@nestjs/common'
-import chalk from 'chalk'
-import dayjs from 'dayjs'
+import * as chalk from 'chalk'
+import * as dayjs from 'dayjs'
 import { Logger, createLogger, format, transports } from 'winston'
 
 export class MyLogger implements LoggerService {
