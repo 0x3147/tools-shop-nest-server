@@ -58,10 +58,10 @@ export class UserService {
 
     const newUser = new User()
     const hashPassword = await handleEncrypt(user.password)
+    newUser.postId = await this.snowFlakeService.nextId()
     newUser.username = user.username
     newUser.password = hashPassword
     newUser.email = user.email
-    newUser.postId = await this.snowFlakeService.nextId()
 
     try {
       await this.userRepository.save(newUser)
