@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import Redis from 'ioredis'
 import { Repository } from 'typeorm'
 import { Logger } from 'winston'
 import { WINSTON_LOGGER_TOKEN } from '../common/winston.module'
@@ -9,6 +8,7 @@ import {
   ToolsShopExceptionEnumCode,
   ToolsShopExceptionEnumDesc
 } from '../exception/toolsShopExceptionEnum'
+import { RedisService } from '../redis/redis.service'
 import { SnowFlakeService } from '../snow-flake/snow-flake.service'
 import { handleEncrypt } from '../util/argon2Util'
 import { RegisterUserDto } from './dto/registerUser.dto'
@@ -22,8 +22,8 @@ export class UserService {
   @Inject(WINSTON_LOGGER_TOKEN)
   private logger: Logger
 
-  @Inject('REDIS_CLIENT')
-  private redisClient: Redis
+  @Inject(RedisService)
+  private redisClient: RedisService
 
   @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import Redis from 'ioredis'
 import { connectionParams } from '../ormconfig'
 import { WinstonModule } from './common/winston.module'
+import { EmailModule } from './email/email.module'
+import { RedisModule } from './redis/redis.module'
+import { SnowFlakeModule } from './snow-flake/snow-flake.module'
 import { UserModule } from './user/user.module'
-import { SnowFlakeModule } from './snow-flake/snow-flake.module';
-import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -18,22 +18,8 @@ import { EmailModule } from './email/email.module';
     }),
     UserModule,
     SnowFlakeModule,
-    EmailModule
-  ],
-  controllers: [],
-  providers: [
-    {
-      provide: 'REDIS_CLIENT',
-      useFactory: (configService: ConfigService) => {
-        return new Redis({
-          host: configService.get('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get('REDIS_PASSWORD'),
-          db: configService.get<number>('REDIS_DB')
-        })
-      },
-      inject: [ConfigService]
-    }
+    EmailModule,
+    RedisModule
   ]
 })
 export class AppModule {}
