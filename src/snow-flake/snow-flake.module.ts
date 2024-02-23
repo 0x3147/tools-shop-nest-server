@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common'
-import { SnowFlakeService } from './snow-flake.service';
+import { SnowFlakeService } from './snow-flake.service'
 
 @Global()
 @Module({

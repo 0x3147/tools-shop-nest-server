@@ -1,8 +1,8 @@
-import { IsEmail, IsNotEmpty, MinLength } from "class-validator"
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator'
 
 export class RegisterUserDto {
   @IsNotEmpty({
-    message: "用户名不能为空"
+    message: '用户名不能为空'
   })
   username: string
 
@@ -17,9 +17,12 @@ export class RegisterUserDto {
   @IsNotEmpty({
     message: '邮箱不能为空'
   })
-  @IsEmail({}, {
-    message: '不是合法的邮箱格式'
-  })
+  @IsEmail(
+    {},
+    {
+      message: '不是合法的邮箱格式'
+    }
+  )
   email: string
 
   @IsNotEmpty({
