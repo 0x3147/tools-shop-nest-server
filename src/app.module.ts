@@ -6,6 +6,7 @@ import { connectionParams } from '../ormconfig'
 import { WinstonModule } from './common/winston.module'
 import { UserModule } from './user/user.module'
 import { SnowFlakeModule } from './snow-flake/snow-flake.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { SnowFlakeModule } from './snow-flake/snow-flake.module';
       envFilePath: `.env${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ''}`
     }),
     UserModule,
-    SnowFlakeModule
+    SnowFlakeModule,
+    EmailModule
   ],
   controllers: [],
   providers: [
