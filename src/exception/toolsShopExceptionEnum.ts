@@ -5,7 +5,9 @@ export enum ToolsShopExceptionEnumDesc {
   USER_NOT_EXISTED = '用户不存在',
   PASSWORD_ERROR = '密码错误',
   TOKEN_EXPIRED = 'token已失效',
-  USER_NOT_LOGIN = '用户未登录'
+  USER_NOT_LOGIN = '用户未登录',
+  UPDATE_PASSWORD_FAIL = '修改密码失败',
+  UPDATE_USER_INFO_FAIL = '修改用户信息失败',
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -15,5 +17,7 @@ export enum ToolsShopExceptionEnumCode {
   USER_NOT_EXISTED = 10004,
   PASSWORD_ERROR = 10005,
   TOKEN_EXPIRED = 10006,
-  USER_NOT_LOGIN = 10007
+  USER_NOT_LOGIN = 10007,
+  UPDATE_PASSWORD_FAIL = 10008,
+  UPDATE_USER_INFO_FAIL = 10009
 }

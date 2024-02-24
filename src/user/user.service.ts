@@ -13,8 +13,11 @@ import { SnowFlakeService } from '../snow-flake/snow-flake.service'
 import { handleDecrypt, handleEncrypt } from '../util/argon2Util'
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
+import { UpdateUserInfoDto } from './dto/update-user-info.dto'
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { User } from './entity/user.entity'
 import { LoginUserVo } from './resp/login-vo'
+import { UserDetailVo } from './resp/user-info.vo'
 
 @Injectable()
 export class UserService {
@@ -129,6 +132,108 @@ export class UserService {
       isAdmin: user.isAdmin,
       createTime: user.createTime,
       member: user.member.isMember
+    }
+  }
+
+  async findUserInfoByPostId(postId: number | bigint) {
+    const user = await this.userRepository.findOne({
+      where: {
+        postId
+      }
+    })
+
+    const resp = new UserDetailVo()
+    resp.postId = user.postId
+    resp.username = user.username
+    resp.email = user.email
+    resp.createTime = user.createTime
+
+    return resp
+  }
+
+  async updatePassword(
+    passwordDto: UpdateUserPasswordDto,
+    postId: number | bigint
+  ) {
+    const captcha = await this.redisClient.get(
+      `update_password_captcha_${passwordDto.email}`
+    )
+
+    if (!captcha) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.CAPTCHA_EXPIRED,
+        ToolsShopExceptionEnumDesc.CAPTCHA_EXPIRED
+      )
+    }
+
+    if (passwordDto.captcha !== captcha) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.CAPTCHA_ERROR,
+        ToolsShopExceptionEnumDesc.CAPTCHA_ERROR
+      )
+    }
+
+    const currentUser = await this.userRepository.findOne({
+      where: {
+        postId
+      }
+    })
+
+    currentUser.password = await handleEncrypt(passwordDto.password)
+
+    try {
+      await this.userRepository.save(currentUser)
+      return '密码修改成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.UPDATE_PASSWORD_FAIL,
+        ToolsShopExceptionEnumDesc.UPDATE_PASSWORD_FAIL
+      )
+    }
+  }
+
+  async updateInfo(
+    postId: number | bigint,
+    updateUserInfoDto: UpdateUserInfoDto
+  ) {
+    const captcha = await this.redisClient.get(
+      `update_user_captcha_${updateUserInfoDto.email}`
+    )
+
+    if (!captcha) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.CAPTCHA_EXPIRED,
+        ToolsShopExceptionEnumDesc.CAPTCHA_EXPIRED
+      )
+    }
+
+    if (updateUserInfoDto.captcha !== captcha) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.CAPTCHA_ERROR,
+        ToolsShopExceptionEnumDesc.CAPTCHA_ERROR
+      )
+    }
+
+    const currentUser = await this.userRepository.findOne({
+      where: {
+        postId
+      }
+    })
+
+    if (updateUserInfoDto.username) {
+      currentUser.username = updateUserInfoDto.username
+    }
+
+    try {
+      await this.userRepository.save(currentUser)
+      return '用户信息修改成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.UPDATE_USER_INFO_FAIL,
+        ToolsShopExceptionEnumDesc.UPDATE_USER_INFO_FAIL
+      )
     }
   }
 }

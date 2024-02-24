@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { RequireLogin } from '../common/custom.decorator'
 import { EmailService } from '../email/email.service'
 import { ToolsShopException } from '../exception/toolsShopException'
 import {
@@ -10,6 +11,8 @@ import {
 import { RedisService } from '../redis/redis.service'
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
+import { UpdateUserInfoDto } from './dto/update-user-info.dto'
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -186,5 +189,60 @@ export class UserController {
         ToolsShopExceptionEnumDesc.TOKEN_EXPIRED
       )
     }
+  }
+
+  @Get('info')
+  @RequireLogin()
+  async getUserInfo(@Query('postId') postId: number | bigint) {
+    return await this.userService.findUserInfoByPostId(postId)
+  }
+
+  @Post(['update-password', 'admin/update-password'])
+  async updatePassword(
+    @Body() passwordDto: UpdateUserPasswordDto,
+    @Query('postId') postId: number | bigint
+  ) {
+    return await this.userService.updatePassword(passwordDto, postId)
+  }
+
+  @Get('update_password/captcha')
+  async updatePasswordCaptcha(@Query('address') address: string) {
+    const code = Math.random().toString().slice(2, 8)
+
+    await this.redisService.set(
+      `update_password_captcha_${address}`,
+      code,
+      10 * 60
+    )
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '更改密码验证码',
+      html: `<p>你的更改密码验证码是 ${code}</p>`
+    })
+    return '发送成功'
+  }
+
+  @Post(['update', 'admin/update'])
+  @RequireLogin()
+  async update(
+    @Query('postId') postId: number | bigint,
+    @Body() updateUserInfoDto: UpdateUserInfoDto
+  ) {
+    return await this.userService.updateInfo(postId, updateUserInfoDto)
+  }
+
+  @Get('update/captcha')
+  async updateCaptcha(@Query('address') address: string) {
+    const code = Math.random().toString().slice(2, 8)
+
+    await this.redisService.set(`update_user_captcha_${address}`, code, 10 * 60)
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '更改用户信息验证码',
+      html: `<p>你的验证码是 ${code}</p>`
+    })
+    return '发送成功'
   }
 }
