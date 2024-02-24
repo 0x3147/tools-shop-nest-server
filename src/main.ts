@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { WINSTON_LOGGER_TOKEN } from './common/winston.module'
 import { HttpExceptionFilter } from './filter/http-exception.filter'
+import { InvokeRecordInterceptor } from './interceptor/invoke-record.interceptor'
 import { ResponseInterceptor } from './interceptor/response.interceptor'
 
 async function bootstrap() {
@@ -27,6 +28,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe())
 
   app.useGlobalInterceptors(new ResponseInterceptor())
+
+  app.useGlobalInterceptors(new InvokeRecordInterceptor())
 
   app.useGlobalFilters(new HttpExceptionFilter())
 
