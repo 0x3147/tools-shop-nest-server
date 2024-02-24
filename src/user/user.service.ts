@@ -112,4 +112,23 @@ export class UserService {
 
     return loginResponse
   }
+
+  async findUserByPostId(postId: number | bigint, isAdmin: boolean) {
+    const user = await this.userRepository.findOne({
+      where: {
+        postId,
+        isAdmin
+      },
+      relations: ['member']
+    })
+
+    return {
+      postId: user.postId,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      createTime: user.createTime,
+      member: user.member.isMember
+    }
+  }
 }

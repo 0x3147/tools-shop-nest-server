@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { connectionParams } from '../ormconfig'
 import { WinstonModule } from './common/winston.module'
@@ -15,6 +16,18 @@ import { UserModule } from './user/user.module'
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ''}`
+    }),
+    JwtModule.registerAsync({
+      global: true,
+      useFactory(configService: ConfigService) {
+        return {
+          secret: configService.get('JWT_SECRET'),
+          signOptions: {
+            expiresIn: configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME')
+          }
+        }
+      },
+      inject: [ConfigService]
     }),
     UserModule,
     SnowFlakeModule,
