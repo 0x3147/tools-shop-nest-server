@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { connectionParams } from '../ormconfig'
 import { WinstonModule } from './common/winston.module'
 import { EmailModule } from './email/email.module'
+import { LoginGuard } from './guard/login.guard'
 import { RedisModule } from './redis/redis.module'
 import { SnowFlakeModule } from './snow-flake/snow-flake.module'
 import { UserModule } from './user/user.module'
@@ -33,6 +34,12 @@ import { UserModule } from './user/user.module'
     SnowFlakeModule,
     EmailModule,
     RedisModule
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: LoginGuard
+    }
   ]
 })
 export class AppModule {}
