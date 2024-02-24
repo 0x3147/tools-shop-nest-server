@@ -7,7 +7,7 @@ export enum ToolsShopExceptionEnumDesc {
   TOKEN_EXPIRED = 'token已失效',
   USER_NOT_LOGIN = '用户未登录',
   UPDATE_PASSWORD_FAIL = '修改密码失败',
-  UPDATE_USER_INFO_FAIL = '修改用户信息失败',
+  UPDATE_USER_INFO_FAIL = '修改用户信息失败'
 }
 
 export enum ToolsShopExceptionEnumCode {
