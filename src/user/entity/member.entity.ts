@@ -25,9 +25,9 @@ export class Member {
   @OneToOne(() => User, (user) => user.member)
   user: User
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
   createTime: Date
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp', comment: '更新时间' })
   updateTime: Date
 }

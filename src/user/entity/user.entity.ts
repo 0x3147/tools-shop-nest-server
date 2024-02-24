@@ -55,9 +55,9 @@ export class User {
   @JoinColumn()
   member: Member
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
   createTime: Date
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp', comment: '更新时间' })
   updateTime: Date
 }

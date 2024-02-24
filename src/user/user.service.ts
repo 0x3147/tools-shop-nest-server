@@ -10,9 +10,11 @@ import {
 } from '../exception/toolsShopExceptionEnum'
 import { RedisService } from '../redis/redis.service'
 import { SnowFlakeService } from '../snow-flake/snow-flake.service'
-import { handleEncrypt } from '../util/argon2Util'
-import { RegisterUserDto } from './dto/registerUser.dto'
+import { handleDecrypt, handleEncrypt } from '../util/argon2Util'
+import { LoginUserDto } from './dto/login-user.dto'
+import { RegisterUserDto } from './dto/register-user.dto'
 import { User } from './entity/user.entity'
+import { LoginUserVo } from './resp/login-vo'
 
 @Injectable()
 export class UserService {
@@ -73,5 +75,41 @@ export class UserService {
         ToolsShopExceptionEnumDesc.USER_EXISTED
       )
     }
+  }
+
+  async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: loginUserDto.username,
+        isAdmin
+      },
+      relations: ['member']
+    })
+
+    if (!user) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.USER_NOT_EXISTED,
+        ToolsShopExceptionEnumDesc.USER_NOT_EXISTED
+      )
+    }
+
+    if (!(await handleDecrypt(user.password, loginUserDto.password))) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.PASSWORD_ERROR,
+        ToolsShopExceptionEnumDesc.PASSWORD_ERROR
+      )
+    }
+
+    const loginResponse = new LoginUserVo()
+    loginResponse.userInfo = {
+      postId: user.postId,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      createTime: user.createTime,
+      member: user.member.isMember
+    }
+
+    return loginResponse
   }
 }
