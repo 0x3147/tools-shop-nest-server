@@ -24,7 +24,7 @@ export class UserController {
   private emailService: EmailService
 
   @Inject(RedisService)
-  private redisService: RedisService
+  private redisClient: RedisService
 
   @Inject(JwtService)
   private jwtService: JwtService
@@ -38,10 +38,10 @@ export class UserController {
   }
 
   @Get('register-captcha')
-  async captcha(@Query() address: string) {
+  async captcha(@Query() address: { address: string }) {
     const code = Math.random().toString().slice(2, 8)
 
-    await this.redisService.set(`captcha_${address}`, code, 5 * 60)
+    await this.redisClient.set(`captcha_${address.address}`, code, 5 * 60)
 
     await this.emailService.sendMail({
       to: address,
@@ -209,7 +209,7 @@ export class UserController {
   async updatePasswordCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
-    await this.redisService.set(
+    await this.redisClient.set(
       `update_password_captcha_${address}`,
       code,
       10 * 60
@@ -236,7 +236,7 @@ export class UserController {
   async updateCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
-    await this.redisService.set(`update_user_captcha_${address}`, code, 10 * 60)
+    await this.redisClient.set(`update_user_captcha_${address}`, code, 10 * 60)
 
     await this.emailService.sendMail({
       to: address,
