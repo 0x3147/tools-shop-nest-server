@@ -12,7 +12,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
   intercept(context: ExecutionContext, next: CallHandler<T>): Observable<any> {
     return next.handle().pipe(
       map((data) => ({
-        statusCode: 10000,
+        errorCode: 0,
         message: '请求成功',
         data,
         success: true
