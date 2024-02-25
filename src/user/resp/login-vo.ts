@@ -15,7 +15,5 @@ interface UserInfo {
 export class LoginUserVo {
   userInfo: UserInfo
 
-  accessToken: string
-
-  refreshToken: string
+  token: string
 }

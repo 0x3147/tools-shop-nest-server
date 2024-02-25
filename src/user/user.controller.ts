@@ -3,11 +3,6 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { RequireLogin } from '../common/custom.decorator'
 import { EmailService } from '../email/email.service'
-import { ToolsShopException } from '../exception/toolsShopException'
-import {
-  ToolsShopExceptionEnumCode,
-  ToolsShopExceptionEnumDesc
-} from '../exception/toolsShopExceptionEnum'
 import { RedisService } from '../redis/redis.service'
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
@@ -55,7 +50,7 @@ export class UserController {
   async userLogin(@Body() loginUser: LoginUserDto) {
     const resp = await this.userService.login(loginUser, false)
 
-    resp.accessToken = this.jwtService.sign(
+    resp.token = this.jwtService.sign(
       {
         postId: resp.userInfo.postId,
         username: resp.userInfo.username,
@@ -63,17 +58,7 @@ export class UserController {
       },
       {
         expiresIn:
-          this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
-      }
-    )
-
-    resp.refreshToken = this.jwtService.sign(
-      {
-        postId: resp.userInfo.postId
-      },
-      {
-        expiresIn:
-          this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
+          this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '7d'
       }
     )
 
@@ -84,7 +69,7 @@ export class UserController {
   async adminLogin(@Body() loginUser: LoginUserDto) {
     const resp = await this.userService.login(loginUser, true)
 
-    resp.accessToken = this.jwtService.sign(
+    resp.token = this.jwtService.sign(
       {
         postId: resp.userInfo.postId,
         username: resp.userInfo.username,
@@ -92,103 +77,11 @@ export class UserController {
       },
       {
         expiresIn:
-          this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
-      }
-    )
-
-    resp.refreshToken = this.jwtService.sign(
-      {
-        postId: resp.userInfo.postId
-      },
-      {
-        expiresIn:
-          this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
+          this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '7d'
       }
     )
 
     return resp
-  }
-
-  @Get('refresh')
-  async refresh(@Query('refreshToken') refreshToken: string) {
-    try {
-      const data = this.jwtService.verify(refreshToken)
-
-      const user = await this.userService.findUserByPostId(data.postId, false)
-
-      const access_token = this.jwtService.sign(
-        {
-          postId: user.postId,
-          username: user.username,
-          member: user.member
-        },
-        {
-          expiresIn:
-            this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
-        }
-      )
-
-      const refresh_token = this.jwtService.sign(
-        {
-          postId: user.postId
-        },
-        {
-          expiresIn:
-            this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
-        }
-      )
-
-      return {
-        access_token,
-        refresh_token
-      }
-    } catch (e) {
-      throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.TOKEN_EXPIRED,
-        ToolsShopExceptionEnumDesc.TOKEN_EXPIRED
-      )
-    }
-  }
-
-  @Get('admin/refresh')
-  async adminRefresh(@Query('refreshToken') refreshToken: string) {
-    try {
-      const data = this.jwtService.verify(refreshToken)
-
-      const user = await this.userService.findUserByPostId(data.postId, true)
-
-      const access_token = this.jwtService.sign(
-        {
-          postId: user.postId,
-          username: user.username,
-          member: user.member
-        },
-        {
-          expiresIn:
-            this.configService.get('JWT_ACCESS_TOKEN_EXPIRES_TIME') || '30m'
-        }
-      )
-
-      const refresh_token = this.jwtService.sign(
-        {
-          postId: user.postId
-        },
-        {
-          expiresIn:
-            this.configService.get('JWT_REFRESH_TOKEN_EXPIRES_TIME') || '7d'
-        }
-      )
-
-      return {
-        access_token,
-        refresh_token
-      }
-    } catch (e) {
-      throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.TOKEN_EXPIRED,
-        ToolsShopExceptionEnumDesc.TOKEN_EXPIRED
-      )
-    }
   }
 
   @Get('info')

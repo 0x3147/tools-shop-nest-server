@@ -51,8 +51,8 @@ export class LoginGuard implements CanActivate {
 
     if (!authorization) {
       throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.USER_NOT_LOGIN,
-        ToolsShopExceptionEnumDesc.USER_NOT_LOGIN
+        ToolsShopExceptionEnumCode.TOKEN_EXPIRED,
+        ToolsShopExceptionEnumDesc.TOKEN_EXPIRED
       )
     }
 
