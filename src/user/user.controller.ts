@@ -198,6 +198,7 @@ export class UserController {
   }
 
   @Post(['update-password', 'admin/update-password'])
+  @RequireLogin()
   async updatePassword(
     @Body() passwordDto: UpdateUserPasswordDto,
     @Query('postId') postId: number | bigint
@@ -206,6 +207,7 @@ export class UserController {
   }
 
   @Get('update_password/captcha')
+  @RequireLogin()
   async updatePasswordCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
@@ -233,6 +235,7 @@ export class UserController {
   }
 
   @Get('update/captcha')
+  @RequireLogin()
   async updateCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8)
 
