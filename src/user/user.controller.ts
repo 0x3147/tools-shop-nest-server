@@ -53,8 +53,7 @@ export class UserController {
     resp.token = this.jwtService.sign(
       {
         postId: resp.userInfo.postId,
-        username: resp.userInfo.username,
-        member: resp.userInfo.member
+        username: resp.userInfo.username
       },
       {
         expiresIn:
@@ -72,8 +71,7 @@ export class UserController {
     resp.token = this.jwtService.sign(
       {
         postId: resp.userInfo.postId,
-        username: resp.userInfo.username,
-        member: resp.userInfo.member
+        username: resp.userInfo.username
       },
       {
         expiresIn:

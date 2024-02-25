@@ -8,8 +8,6 @@ interface UserInfo {
   isAdmin: boolean
 
   createTime: Date
-
-  member: boolean
 }
 
 export class LoginUserVo {

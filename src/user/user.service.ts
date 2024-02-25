@@ -109,8 +109,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
-      createTime: user.createTime,
-      member: user.member.isMember
+      createTime: user.createTime
     }
 
     return loginResponse
