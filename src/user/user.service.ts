@@ -119,7 +119,8 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: {
         postId
-      }
+      },
+      relations: ['member']
     })
 
     const resp = new UserDetailVo()
@@ -127,6 +128,10 @@ export class UserService {
     resp.username = user.username
     resp.email = user.email
     resp.createTime = user.createTime
+
+    if (user.member) {
+      resp.memberStatus = '普通会员'
+    }
 
     return resp
   }

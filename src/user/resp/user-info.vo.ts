@@ -5,5 +5,7 @@ export class UserDetailVo {
 
   email: string
 
+  memberStatus: string
+
   createTime: Date
 }

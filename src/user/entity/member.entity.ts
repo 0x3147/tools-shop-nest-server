@@ -16,6 +16,11 @@ export class Member {
   @Column({ default: false })
   isMember: boolean
 
+  @Column({
+    nullable: true
+  })
+  memberType: string
+
   @Column({ nullable: true, type: 'timestamp' })
   startDate: Date
 
