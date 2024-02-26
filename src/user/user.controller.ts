@@ -92,9 +92,8 @@ export class UserController {
   @RequireLogin()
   async updatePassword(
     @Body() passwordDto: UpdateUserPasswordDto,
-    @Query('postId') postId: number | bigint
   ) {
-    return await this.userService.updatePassword(passwordDto, postId)
+    return await this.userService.updatePassword(passwordDto)
   }
 
   @Get('update_password/captcha')

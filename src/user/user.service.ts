@@ -150,10 +150,7 @@ export class UserService {
     return resp
   }
 
-  async updatePassword(
-    passwordDto: UpdateUserPasswordDto,
-    postId: number | bigint
-  ) {
+  async updatePassword(passwordDto: UpdateUserPasswordDto) {
     const captcha = await this.redisClient.get(
       `update_password_captcha_${passwordDto.email}`
     )
@@ -174,7 +171,7 @@ export class UserService {
 
     const currentUser = await this.userRepository.findOne({
       where: {
-        postId
+        postId: passwordDto.postId
       }
     })
 
