@@ -90,9 +90,7 @@ export class UserController {
 
   @Post(['update-password', 'admin/update-password'])
   @RequireLogin()
-  async updatePassword(
-    @Body() passwordDto: UpdateUserPasswordDto,
-  ) {
+  async updatePassword(@Body() passwordDto: UpdateUserPasswordDto) {
     return await this.userService.updatePassword(passwordDto)
   }
 
@@ -117,11 +115,8 @@ export class UserController {
 
   @Post(['update', 'admin/update'])
   @RequireLogin()
-  async update(
-    @Query('postId') postId: number | bigint,
-    @Body() updateUserInfoDto: UpdateUserInfoDto
-  ) {
-    return await this.userService.updateInfo(postId, updateUserInfoDto)
+  async update(@Body() updateUserInfoDto: UpdateUserInfoDto) {
+    return await this.userService.updateInfo(updateUserInfoDto)
   }
 
   @Get('update/captcha')

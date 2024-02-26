@@ -115,25 +115,6 @@ export class UserService {
     return loginResponse
   }
 
-  async findUserByPostId(postId: number | bigint, isAdmin: boolean) {
-    const user = await this.userRepository.findOne({
-      where: {
-        postId,
-        isAdmin
-      },
-      relations: ['member']
-    })
-
-    return {
-      postId: user.postId,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      createTime: user.createTime,
-      member: user.member.isMember
-    }
-  }
-
   async findUserInfoByPostId(postId: number | bigint) {
     const user = await this.userRepository.findOne({
       where: {
@@ -189,10 +170,7 @@ export class UserService {
     }
   }
 
-  async updateInfo(
-    postId: number | bigint,
-    updateUserInfoDto: UpdateUserInfoDto
-  ) {
+  async updateInfo(updateUserInfoDto: UpdateUserInfoDto) {
     const captcha = await this.redisClient.get(
       `update_user_captcha_${updateUserInfoDto.email}`
     )
@@ -213,7 +191,7 @@ export class UserService {
 
     const currentUser = await this.userRepository.findOne({
       where: {
-        postId
+        postId: updateUserInfoDto.postId
       }
     })
 
