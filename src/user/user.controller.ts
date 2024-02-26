@@ -85,7 +85,8 @@ export class UserController {
   @Get('info')
   @RequireLogin()
   async getUserInfo(@Query('postId') postId: number | bigint) {
-    return await this.userService.findUserInfoByPostId(postId)
+    console.log(BigInt(postId))
+    return await this.userService.findUserInfoByPostId(BigInt(postId))
   }
 
   @Post(['update-password', 'admin/update-password'])
