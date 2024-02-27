@@ -7,6 +7,11 @@ export class UpdateUserPasswordDto {
   postId: number | bigint
 
   @IsNotEmpty({
+    message: '原密码不能为空'
+  })
+  oldPassword: string
+
+  @IsNotEmpty({
     message: '密码不能为空'
   })
   @MinLength(6, {

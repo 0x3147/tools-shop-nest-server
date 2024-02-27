@@ -11,6 +11,7 @@ import {
 import { RedisService } from '../redis/redis.service'
 import { SnowFlakeService } from '../snow-flake/snow-flake.service'
 import { handleDecrypt, handleEncrypt } from '../util/argon2Util'
+import { ForgetPasswordDto } from './dto/forget-password.dto'
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserInfoDto } from './dto/update-user-info.dto'
@@ -143,6 +144,13 @@ export class UserService {
       }
     })
 
+    if (!(await handleDecrypt(currentUser.password, passwordDto.oldPassword))) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.OLD_PASSWORD_ERROR,
+        ToolsShopExceptionEnumDesc.OLD_PASSWORD_ERROR
+      )
+    }
+
     currentUser.password = await handleEncrypt(passwordDto.password)
 
     try {
@@ -198,6 +206,52 @@ export class UserService {
       throw new ToolsShopException(
         ToolsShopExceptionEnumCode.UPDATE_USER_INFO_FAIL,
         ToolsShopExceptionEnumDesc.UPDATE_USER_INFO_FAIL
+      )
+    }
+  }
+
+  async forgetPassword(forgetPasswordDto: ForgetPasswordDto) {
+    const captcha = await this.redisClient.get(
+      `forget_password_captcha_${forgetPasswordDto.email}`
+    )
+
+    if (!captcha) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.CAPTCHA_EXPIRED,
+        ToolsShopExceptionEnumDesc.CAPTCHA_EXPIRED
+      )
+    }
+
+    if (forgetPasswordDto.captcha !== captcha) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.CAPTCHA_ERROR,
+        ToolsShopExceptionEnumDesc.CAPTCHA_ERROR
+      )
+    }
+
+    const user = await this.userRepository.findOne({
+      where: {
+        email: forgetPasswordDto.email
+      }
+    })
+
+    if (!user) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.USER_NOT_EXISTED,
+        ToolsShopExceptionEnumDesc.USER_NOT_EXISTED
+      )
+    }
+
+    user.password = await handleEncrypt(forgetPasswordDto.password)
+
+    try {
+      await this.userRepository.save(user)
+      return '密码重设成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.UPDATE_PASSWORD_FAIL,
+        ToolsShopExceptionEnumDesc.UPDATE_PASSWORD_FAIL
       )
     }
   }

@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt'
 import { RequireLogin } from '../common/custom.decorator'
 import { EmailService } from '../email/email.service'
 import { RedisService } from '../redis/redis.service'
+import { ForgetPasswordDto } from './dto/forget-password.dto'
 import { LoginUserDto } from './dto/login-user.dto'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { UpdateUserInfoDto } from './dto/update-user-info.dto'
@@ -114,5 +115,28 @@ export class UserController {
       html: `<p>你的验证码是 ${code}</p>`
     })
     return '发送成功'
+  }
+
+  @Get('forget-captcha')
+  async forgetCaptcha(@Query('address') address: string) {
+    const code = Math.random().toString().slice(2, 8)
+
+    await this.redisClient.set(
+      `forget_password_captcha_${address}`,
+      code,
+      10 * 60
+    )
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '找回密码验证',
+      html: `<p>你的验证码是 ${code}</p>`
+    })
+    return '发送成功'
+  }
+
+  @Post('forget')
+  async forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
+    return await this.userService.forgetPassword(forgetPasswordDto)
   }
 }
