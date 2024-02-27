@@ -137,24 +137,6 @@ export class UserService {
   }
 
   async updatePassword(passwordDto: UpdateUserPasswordDto) {
-    const captcha = await this.redisClient.get(
-      `update_password_captcha_${passwordDto.email}`
-    )
-
-    if (!captcha) {
-      throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.CAPTCHA_EXPIRED,
-        ToolsShopExceptionEnumDesc.CAPTCHA_EXPIRED
-      )
-    }
-
-    if (passwordDto.captcha !== captcha) {
-      throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.CAPTCHA_ERROR,
-        ToolsShopExceptionEnumDesc.CAPTCHA_ERROR
-      )
-    }
-
     const currentUser = await this.userRepository.findOne({
       where: {
         postId: passwordDto.postId
@@ -176,29 +158,33 @@ export class UserService {
   }
 
   async updateInfo(updateUserInfoDto: UpdateUserInfoDto) {
-    const captcha = await this.redisClient.get(
-      `update_user_captcha_${updateUserInfoDto.email}`
-    )
-
-    if (!captcha) {
-      throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.CAPTCHA_EXPIRED,
-        ToolsShopExceptionEnumDesc.CAPTCHA_EXPIRED
-      )
-    }
-
-    if (updateUserInfoDto.captcha !== captcha) {
-      throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.CAPTCHA_ERROR,
-        ToolsShopExceptionEnumDesc.CAPTCHA_ERROR
-      )
-    }
-
     const currentUser = await this.userRepository.findOne({
       where: {
         postId: updateUserInfoDto.postId
       }
     })
+
+    if (updateUserInfoDto.email) {
+      const captcha = await this.redisClient.get(
+        `update_user_captcha_${updateUserInfoDto.email}`
+      )
+
+      if (!captcha) {
+        throw new ToolsShopException(
+          ToolsShopExceptionEnumCode.CAPTCHA_EXPIRED,
+          ToolsShopExceptionEnumDesc.CAPTCHA_EXPIRED
+        )
+      }
+
+      if (updateUserInfoDto.captcha !== captcha) {
+        throw new ToolsShopException(
+          ToolsShopExceptionEnumCode.CAPTCHA_ERROR,
+          ToolsShopExceptionEnumDesc.CAPTCHA_ERROR
+        )
+      }
+
+      currentUser.email = updateUserInfoDto.email
+    }
 
     if (updateUserInfoDto.username) {
       currentUser.username = updateUserInfoDto.username
