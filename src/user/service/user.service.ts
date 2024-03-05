@@ -2,28 +2,35 @@ import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Logger } from 'winston'
-import { WINSTON_LOGGER_TOKEN } from '../common/winston.module'
-import { ToolsShopException } from '../exception/toolsShopException'
+import { MemberType } from '../../common/member'
+import { WINSTON_LOGGER_TOKEN } from '../../common/winston.module'
+import { ToolsShopException } from '../../exception/toolsShopException'
 import {
   ToolsShopExceptionEnumCode,
   ToolsShopExceptionEnumDesc
-} from '../exception/toolsShopExceptionEnum'
-import { RedisService } from '../redis/redis.service'
-import { SnowFlakeService } from '../snow-flake/snow-flake.service'
-import { handleDecrypt, handleEncrypt } from '../util/argon2Util'
-import { ForgetPasswordDto } from './dto/forget-password.dto'
-import { LoginUserDto } from './dto/login-user.dto'
-import { RegisterUserDto } from './dto/register-user.dto'
-import { UpdateUserInfoDto } from './dto/update-user-info.dto'
-import { UpdateUserPasswordDto } from './dto/update-user-password.dto'
-import { User } from './entity/user.entity'
-import { LoginUserVo } from './resp/login-vo'
-import { UserDetailVo } from './resp/user-info.vo'
+} from '../../exception/toolsShopExceptionEnum'
+import { RedisService } from '../../redis/redis.service'
+import { SnowFlakeService } from '../../snow-flake/snow-flake.service'
+import { handleDecrypt, handleEncrypt } from '../../util/argon2Util'
+import { ForgetPasswordDto } from '../dto/forget-password.dto'
+import { LoginUserDto } from '../dto/login-user.dto'
+import { RegisterUserDto } from '../dto/register-user.dto'
+import { UpdateUserInfoDto } from '../dto/update-user-info.dto'
+import { UpdateUserPasswordDto } from '../dto/update-user-password.dto'
+import { Member } from '../entity/member.entity'
+import { User } from '../entity/user.entity'
+import { LoginUserVo } from '../resp/login-vo'
+import { SubscribeVo } from '../resp/subscribe.vo'
+import { UserDetailVo } from '../resp/user-info.vo'
+import { UserUtilService } from './user-util.service'
 
 @Injectable()
 export class UserService {
   @InjectRepository(User)
   private userRepository: Repository<User>
+
+  @InjectRepository(Member)
+  private memberRepository: Repository<Member>
 
   @Inject(WINSTON_LOGGER_TOKEN)
   private logger: Logger
@@ -33,6 +40,9 @@ export class UserService {
 
   @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService
+
+  @Inject(UserUtilService)
+  private userUtilService: UserUtilService
 
   async register(user: RegisterUserDto) {
     const captcha = await this.redisClient.get(`captcha_${user.email}`)
@@ -63,11 +73,13 @@ export class UserService {
     }
 
     const newUser = new User()
+    const withMember = new Member()
     const hashPassword = await handleEncrypt(user.password)
     newUser.postId = await this.snowFlakeService.nextId()
     newUser.username = user.username
     newUser.password = hashPassword
     newUser.email = user.email
+    newUser.member = withMember
 
     try {
       await this.userRepository.save(newUser)
@@ -129,10 +141,7 @@ export class UserService {
     resp.username = user.username
     resp.email = user.email
     resp.createTime = user.createTime
-
-    if (user.member) {
-      resp.memberStatus = '普通会员'
-    }
+    resp.memberStatus = user.member.memberType
 
     return resp
   }
@@ -252,6 +261,62 @@ export class UserService {
       throw new ToolsShopException(
         ToolsShopExceptionEnumCode.UPDATE_PASSWORD_FAIL,
         ToolsShopExceptionEnumDesc.UPDATE_PASSWORD_FAIL
+      )
+    }
+  }
+
+  async subscribeMember(postId: number | bigint, memberType: MemberType) {
+    const user = await this.userRepository.findOne({
+      where: { postId }
+    })
+
+    if (!user) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.USER_NOT_EXISTED,
+        ToolsShopExceptionEnumDesc.USER_NOT_EXISTED
+      )
+    }
+
+    const member = await this.memberRepository.findOne({
+      where: {
+        user: {
+          postId
+        }
+      }
+    })
+
+    const currentDate = new Date()
+    let expiryDate: Date
+
+    if (
+      member.memberType !== MemberType.COMMON &&
+      member.endDate > currentDate
+    ) {
+      expiryDate = this.userUtilService.calculateExpiryDate(
+        member.endDate,
+        memberType
+      )
+    } else {
+      expiryDate = this.userUtilService.calculateExpiryDate(
+        currentDate,
+        memberType
+      )
+    }
+
+    member.memberType = memberType
+    member.startDate = currentDate
+    member.endDate = expiryDate
+
+    try {
+      await this.memberRepository.save(member)
+      const resp = new SubscribeVo()
+      resp.message = '订阅成功'
+      resp.expiryDate = expiryDate
+    } catch (e) {
+      this.logger.error(e, UserService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.SUBSCRIBE_MEMBER_FAIL,
+        ToolsShopExceptionEnumDesc.SUBSCRIBE_MEMBER_FAIL
       )
     }
   }

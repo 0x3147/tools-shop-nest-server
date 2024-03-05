@@ -8,7 +8,8 @@ export enum ToolsShopExceptionEnumDesc {
   USER_NOT_LOGIN = '用户未登录',
   UPDATE_PASSWORD_FAIL = '修改密码失败',
   UPDATE_USER_INFO_FAIL = '修改用户信息失败',
-  OLD_PASSWORD_ERROR = '原密码错误'
+  OLD_PASSWORD_ERROR = '原密码错误',
+  SUBSCRIBE_MEMBER_FAIL = '会员订阅失败'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -21,5 +22,6 @@ export enum ToolsShopExceptionEnumCode {
   USER_NOT_LOGIN = 1007,
   UPDATE_PASSWORD_FAIL = 1008,
   UPDATE_USER_INFO_FAIL = 1009,
-  OLD_PASSWORD_ERROR = 1010
+  OLD_PASSWORD_ERROR = 1010,
+  SUBSCRIBE_MEMBER_FAIL = 1011
 }

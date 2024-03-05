@@ -6,18 +6,20 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
-import { User } from './user.entity' // 假设用户实体文件名为 user.entity.ts
+import { MemberType } from '../../common/member'
+import { User } from './user.entity'
 
 @Entity('member')
 export class Member {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ default: false })
-  isMember: boolean
-
   @Column({
-    nullable: true
+    type: 'enum',
+    enum: MemberType,
+    default: MemberType.COMMON,
+    nullable: true,
+    comment: '会员类型'
   })
   memberType: string
 
