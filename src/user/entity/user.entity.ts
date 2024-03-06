@@ -57,7 +57,7 @@ export class User {
 
   @ManyToMany(() => Role)
   @JoinTable({
-    name: 'user_role_relation'
+    name: 'user_roles'
   })
   roles: Role[]
 

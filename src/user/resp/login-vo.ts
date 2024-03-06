@@ -9,6 +9,10 @@ interface UserInfo {
 
   isFrozen: boolean
 
+  roles: string[]
+
+  permissions: string[]
+
   createTime: Date
 }
 

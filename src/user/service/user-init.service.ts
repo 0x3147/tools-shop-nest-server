@@ -48,8 +48,8 @@ export class UserInitService {
     adminUser.roles = [adminRole]
     adminRole.permissions = [adminPermission]
 
+    await this.permissionRepository.save([adminPermission])
+    await this.roleRepository.save([adminRole])
     await this.userRepository.save(adminUser)
-    await this.roleRepository.save(adminRole)
-    await this.permissionRepository.save(adminPermission)
   }
 }

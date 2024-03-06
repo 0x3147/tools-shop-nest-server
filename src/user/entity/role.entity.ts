@@ -22,7 +22,7 @@ export class Role {
 
   @ManyToMany(() => Permission)
   @JoinTable({
-    name: 'role_permission_relation'
+    name: 'role_permissions'
   })
   permissions: Permission[]
 }

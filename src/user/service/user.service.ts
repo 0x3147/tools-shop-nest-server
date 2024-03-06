@@ -87,7 +87,7 @@ export class UserService {
         username: loginUserDto.username,
         isAdmin
       },
-      relations: ['member']
+      relations: ['roles', 'roles.permissions']
     })
 
     if (!user) {
@@ -111,6 +111,15 @@ export class UserService {
       email: user.email,
       isAdmin: user.isAdmin,
       isFrozen: user.isFrozen,
+      roles: user.roles.map((item) => item.name),
+      permissions: user.roles.reduce((arr, item) => {
+        item.permissions.forEach((permission) => {
+          if (arr.indexOf(permission) === -1) {
+            arr.push(permission.code)
+          }
+        })
+        return arr
+      }, []),
       createTime: user.createTime
     }
 

@@ -13,11 +13,14 @@ import {
   ToolsShopExceptionEnumCode,
   ToolsShopExceptionEnumDesc
 } from '../exception/toolsShopExceptionEnum'
+import { Permission } from '../user/entity/permission.entity'
 
 interface JwtUserData {
   postId: number | bigint
   username: string
   member: boolean
+  roles: string[]
+  permissions: Permission[]
 }
 
 declare module 'express' {
@@ -63,7 +66,9 @@ export class LoginGuard implements CanActivate {
       request.user = {
         postId: data.postId,
         username: data.username,
-        member: data.member
+        member: data.member,
+        roles: data.roles,
+        permissions: data.permissions
       }
       return true
     } catch (e) {
