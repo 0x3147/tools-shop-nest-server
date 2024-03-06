@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
+import { Role } from './role.entity'
 
 @Entity({
   name: 'tools_shop_user'
@@ -45,6 +48,18 @@ export class User {
     default: false
   })
   isAdmin: boolean
+
+  @Column({
+    comment: '是否冻结',
+    default: false
+  })
+  isFrozen: boolean
+
+  @ManyToMany(() => Role)
+  @JoinTable({
+    name: 'user_role_relation'
+  })
+  roles: Role[]
 
   @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
   createTime: Date
