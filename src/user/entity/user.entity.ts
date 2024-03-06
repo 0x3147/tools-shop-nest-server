@@ -2,12 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
-import { Member } from './member.entity'
 
 @Entity({
   name: 'tools_shop_user'
@@ -48,12 +45,6 @@ export class User {
     default: false
   })
   isAdmin: boolean
-
-  @OneToOne(() => Member, (member) => member.user, {
-    cascade: true // 启用级联操作（例如，当保存用户时自动保存会员信息）
-  })
-  @JoinColumn()
-  member: Member
 
   @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
   createTime: Date
