@@ -5,7 +5,9 @@ export class UserDetailVo {
 
   email: string
 
-  memberStatus: string
+  roles: string[]
+
+  permissions: string[]
 
   createTime: Date
 }

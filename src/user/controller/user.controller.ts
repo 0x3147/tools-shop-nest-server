@@ -92,7 +92,6 @@ export class UserController {
   @Get('info')
   @RequireLogin()
   async getUserInfo(@Query('postId') postId: number | bigint) {
-    console.log(BigInt(postId))
     return await this.userService.findUserInfoByPostId(BigInt(postId))
   }
 

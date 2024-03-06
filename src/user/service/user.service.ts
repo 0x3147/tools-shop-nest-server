@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Logger } from 'winston'
+import { PermissionCode, PermissionDesc } from '../../common/permission'
 import { WINSTON_LOGGER_TOKEN } from '../../common/winston.module'
 import { ToolsShopException } from '../../exception/toolsShopException'
 import {
@@ -16,6 +17,8 @@ import { LoginUserDto } from '../dto/login-user.dto'
 import { RegisterUserDto } from '../dto/register-user.dto'
 import { UpdateUserInfoDto } from '../dto/update-user-info.dto'
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto'
+import { Permission } from '../entity/permission.entity'
+import { Role } from '../entity/role.entity'
 import { User } from '../entity/user.entity'
 import { LoginUserVo } from '../resp/login-vo'
 import { UserDetailVo } from '../resp/user-info.vo'
@@ -24,6 +27,12 @@ import { UserDetailVo } from '../resp/user-info.vo'
 export class UserService {
   @InjectRepository(User)
   private userRepository: Repository<User>
+
+  @InjectRepository(Role)
+  private roleRepository: Repository<Role>
+
+  @InjectRepository(Permission)
+  private permissionRepository: Repository<Permission>
 
   @Inject(WINSTON_LOGGER_TOKEN)
   private logger: Logger
@@ -69,7 +78,19 @@ export class UserService {
     newUser.password = hashPassword
     newUser.email = user.email
 
+    const newRole = new Role()
+    newRole.name = '普通用户'
+
+    const newPermission = new Permission()
+    newPermission.code = PermissionCode.VIEW_ONLY
+    newPermission.description = PermissionDesc.VIEW_ONLY
+
+    newUser.roles = [newRole]
+    newRole.permissions = [newPermission]
+
     try {
+      await this.permissionRepository.save([newPermission])
+      await this.roleRepository.save([newRole])
       await this.userRepository.save(newUser)
       return '注册成功'
     } catch (e) {
@@ -130,13 +151,22 @@ export class UserService {
       where: {
         postId
       },
-      relations: ['member']
+      relations: ['roles', 'roles.permissions']
     })
 
     const resp = new UserDetailVo()
     resp.postId = user.postId
     resp.username = user.username
     resp.email = user.email
+    resp.roles = user.roles.map((item) => item.name)
+    resp.permissions = user.roles.reduce((arr, item) => {
+      item.permissions.forEach((permission) => {
+        if (arr.indexOf(permission) === -1) {
+          arr.push(permission.code)
+        }
+      })
+      return arr
+    }, [])
     resp.createTime = user.createTime
 
     return resp
