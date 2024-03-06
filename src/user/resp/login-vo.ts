@@ -7,6 +7,8 @@ interface UserInfo {
 
   isAdmin: boolean
 
+  isFrozen: boolean
+
   createTime: Date
 }
 

@@ -9,7 +9,7 @@ export enum ToolsShopExceptionEnumDesc {
   UPDATE_PASSWORD_FAIL = '修改密码失败',
   UPDATE_USER_INFO_FAIL = '修改用户信息失败',
   OLD_PASSWORD_ERROR = '原密码错误',
-  SUBSCRIBE_MEMBER_FAIL = '会员订阅失败'
+  PERMISSION_DENIED = 'sorry~您没有使用该功能的权限'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -23,5 +23,5 @@ export enum ToolsShopExceptionEnumCode {
   UPDATE_PASSWORD_FAIL = 10008,
   UPDATE_USER_INFO_FAIL = 10009,
   OLD_PASSWORD_ERROR = 10010,
-  SUBSCRIBE_MEMBER_FAIL = 10011
+  PERMISSION_DENIED = 10011
 }

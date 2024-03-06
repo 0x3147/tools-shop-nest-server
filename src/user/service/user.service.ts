@@ -110,6 +110,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
+      isFrozen: user.isFrozen,
       createTime: user.createTime
     }
 
