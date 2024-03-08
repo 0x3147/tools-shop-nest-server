@@ -60,6 +60,7 @@ export class UserQueryService {
     resp.tableData = tableData
     resp.total = total
     resp.currentPage = currentPage
+    resp.lastPage = Math.ceil(total / pageSize)
 
     return resp
   }

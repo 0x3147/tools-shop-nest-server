@@ -9,4 +9,5 @@ export class QueryUserListVo {
   tableData: tableData[]
   total: number
   currentPage: number
+  lastPage: number
 }

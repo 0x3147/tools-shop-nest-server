@@ -14,4 +14,9 @@ export class UserInitController {
   async adminInit() {
     await this.userInitService.adminInit()
   }
+
+  @Get('common-init')
+  async commonInit() {
+    await this.userInitService.commonInit()
+  }
 }
