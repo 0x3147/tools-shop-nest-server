@@ -7,7 +7,6 @@ import { EmailService } from '../../email/email.service'
 import { RedisService } from '../../redis/redis.service'
 import { ForgetPasswordDto } from '../dto/forget-password.dto'
 import { LoginUserDto } from '../dto/login-user.dto'
-import { QueryCommonUserDto } from '../dto/query-common-user.dto'
 import { RegisterUserDto } from '../dto/register-user.dto'
 import { UpdateUserInfoDto } from '../dto/update-user-info.dto'
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto'
@@ -144,10 +143,5 @@ export class UserController {
   @Post('forget')
   async forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
     return await this.userService.forgetPassword(forgetPasswordDto)
-  }
-
-  @Post('query-common-user')
-  async queryCommonUser(@Body() queryCommonUserDto: QueryCommonUserDto) {
-    return await this.userService.queryCommonUser(queryCommonUserDto)
   }
 }
