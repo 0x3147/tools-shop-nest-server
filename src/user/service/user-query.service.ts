@@ -16,6 +16,7 @@ export class UserQueryService {
     currentPage: number = 1,
     username: string | undefined,
     email: string | undefined,
+    isFrozen?: boolean | undefined,
     type?: 'common' | 'member'
   ) {
     const skip = (currentPage - 1) * pageSize
@@ -31,6 +32,10 @@ export class UserQueryService {
 
     if (type === 'member') {
       query = query.andWhere('role.name = :roleName', { roleName: '会员用户' })
+    }
+
+    if (isFrozen !== undefined) {
+      query = query.andWhere('user.isFrozen = :isFrozen', { isFrozen })
     }
 
     if (username !== undefined && username !== '') {
@@ -70,7 +75,8 @@ export class UserQueryService {
       pageSize = 1,
       currentPage = 10,
       username = undefined,
-      email = undefined
+      email = undefined,
+      isFrozen = undefined
     } = queryCommonUserDto
 
     return await this.makeQuery(
@@ -79,6 +85,7 @@ export class UserQueryService {
       currentPage,
       username,
       email,
+      isFrozen,
       'common'
     )
   }

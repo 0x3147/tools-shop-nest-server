@@ -14,4 +14,6 @@ export class QueryCommonUserDto {
   username?: string | undefined
 
   email?: string | undefined
+
+  isFrozen?: boolean | undefined
 }
