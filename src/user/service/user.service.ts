@@ -328,7 +328,6 @@ export class UserService {
       postId: user.postId,
       username: user.username,
       email: user.email,
-      isAdmin: user.isAdmin,
       isFrozen: user.isFrozen,
       createTime: user.createTime
     }))
