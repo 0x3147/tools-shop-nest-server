@@ -34,17 +34,17 @@ export class UserQueryService {
       query = query.andWhere('role.name = :roleName', { roleName: '会员用户' })
     }
 
-    if (isFrozen !== undefined) {
+    if (isFrozen !== null) {
       query = query.andWhere('user.isFrozen = :isFrozen', { isFrozen })
     }
 
-    if (username !== undefined && username !== '') {
+    if (username !== '') {
       query = query.andWhere('user.username LIKE :username', {
         username: `%${username}%`
       })
     }
 
-    if (email !== undefined && email !== '') {
+    if (email !== '') {
       query = query.andWhere('user.email LIKE :email', { email: `%${email}%` })
     }
 
@@ -74,9 +74,9 @@ export class UserQueryService {
     const {
       pageSize = 1,
       currentPage = 10,
-      username = undefined,
-      email = undefined,
-      isFrozen = undefined
+      username = '',
+      email = '',
+      isFrozen = null
     } = queryCommonUserDto
 
     return await this.makeQuery(
@@ -94,8 +94,8 @@ export class UserQueryService {
     const {
       pageSize = 1,
       currentPage = 10,
-      username = undefined,
-      email = undefined
+      username = '',
+      email = ''
     } = queryCommonUserDto
 
     return await this.makeQuery(true, pageSize, currentPage, username, email)

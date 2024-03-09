@@ -124,13 +124,19 @@ export class UserService {
       )
     }
 
+    if (user.isFrozen) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.USER_IS_FROZEN,
+        ToolsShopExceptionEnumDesc.USER_IS_FROZEN
+      )
+    }
+
     const loginResponse = new LoginUserVo()
     loginResponse.userInfo = {
       postId: user.postId,
       username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
-      isFrozen: user.isFrozen,
       roles: user.roles.map((item) => item.name),
       permissions: user.roles.reduce((arr, item) => {
         item.permissions.forEach((permission) => {
@@ -287,6 +293,40 @@ export class UserService {
       throw new ToolsShopException(
         ToolsShopExceptionEnumCode.UPDATE_PASSWORD_FAIL,
         ToolsShopExceptionEnumDesc.UPDATE_PASSWORD_FAIL
+      )
+    }
+  }
+
+  async freeze(postId: number | bigint) {
+    const user = await this.userRepository.findOneBy({ postId })
+
+    user.isFrozen = true
+
+    try {
+      await this.userRepository.save(user)
+      return '冻结用户成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.FREEZE_USER_FAIL,
+        ToolsShopExceptionEnumDesc.FREEZE_USER_FAIL
+      )
+    }
+  }
+
+  async unfreeze(postId: number | bigint) {
+    const user = await this.userRepository.findOneBy({ postId })
+
+    user.isFrozen = false
+
+    try {
+      await this.userRepository.save(user)
+      return '解冻用户成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.UNFREEZE_USER_FAIL,
+        ToolsShopExceptionEnumDesc.UNFREEZE_USER_FAIL
       )
     }
   }

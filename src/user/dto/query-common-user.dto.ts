@@ -11,9 +11,9 @@ export class QueryCommonUserDto {
   })
   pageSize: number
 
-  username?: string | undefined
+  username?: string
 
-  email?: string | undefined
+  email?: string
 
-  isFrozen?: boolean | undefined
+  isFrozen?: boolean | null
 }

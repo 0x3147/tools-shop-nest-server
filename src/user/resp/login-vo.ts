@@ -7,8 +7,6 @@ interface UserInfo {
 
   isAdmin: boolean
 
-  isFrozen: boolean
-
   roles: string[]
 
   permissions: string[]

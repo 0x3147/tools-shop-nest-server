@@ -144,4 +144,14 @@ export class UserController {
   async forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
     return await this.userService.forgetPassword(forgetPasswordDto)
   }
+
+  @Post('freeze')
+  async freeze(@Body() freezeUserDto: { postId: number | bigint }) {
+    return await this.userService.freeze(BigInt(freezeUserDto.postId))
+  }
+
+  @Post('unfreeze')
+  async unfreeze(@Body() unfreezeUserDto: { postId: number | bigint }) {
+    return await this.userService.unfreeze(BigInt(unfreezeUserDto.postId))
+  }
 }
