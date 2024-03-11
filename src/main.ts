@@ -13,6 +13,8 @@ async function bootstrap() {
 
   const allowedOrigins = configService.get('ALLOWED_ORIGINS').split(',')
 
+  app.setGlobalPrefix('/api/v1')
+
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
