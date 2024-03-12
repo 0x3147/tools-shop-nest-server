@@ -6,6 +6,7 @@ import { PermissionCode } from '../../common/permission'
 import { EmailService } from '../../email/email.service'
 import { RedisService } from '../../redis/redis.service'
 import { ForgetPasswordDto } from '../dto/forget-password.dto'
+import { FrozenDto } from '../dto/frozen.dto'
 import { LoginUserDto } from '../dto/login-user.dto'
 import { RegisterUserDto } from '../dto/register-user.dto'
 import { UpdateUserInfoDto } from '../dto/update-user-info.dto'
@@ -146,12 +147,12 @@ export class UserController {
   }
 
   @Post('freeze')
-  async freeze(@Body() freezeUserDto: { postId: number | bigint }) {
+  async freeze(@Body() freezeUserDto: FrozenDto) {
     return await this.userService.freeze(BigInt(freezeUserDto.postId))
   }
 
   @Post('unfreeze')
-  async unfreeze(@Body() unfreezeUserDto: { postId: number | bigint }) {
+  async unfreeze(@Body() unfreezeUserDto: FrozenDto) {
     return await this.userService.unfreeze(BigInt(unfreezeUserDto.postId))
   }
 }
