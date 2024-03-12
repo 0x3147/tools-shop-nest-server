@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { RequireLogin, RequirePermission } from '../../common/custom.decorator'
+import { RequireLogin, RequirePermissions } from '../../common/custom.decorator'
 import { PermissionCode } from '../../common/permission'
 import { EmailService } from '../../email/email.service'
 import { RedisService } from '../../redis/redis.service'
@@ -69,7 +69,7 @@ export class UserController {
   }
 
   @Post('admin/login')
-  @RequirePermission(PermissionCode.HAVE_ALL_PERMISSIONS)
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async adminLogin(@Body() loginUser: LoginUserDto) {
     const resp = await this.userService.login(loginUser)
 

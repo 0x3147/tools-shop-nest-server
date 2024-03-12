@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { APP_GUARD } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { connectionParams } from '../ormconfig'
 import { WinstonModule } from './common/winston.module'
 import { EmailModule } from './email/email.module'
 import { LoginGuard } from './guard/login.guard'
-import { PermissionGuard } from './guard/permission.guard'
+import { PermissionsGuard } from './guard/permission.guard'
 import { RedisModule } from './redis/redis.module'
 import { SnowFlakeModule } from './snow-flake/snow-flake.module'
 import { UserModule } from './user/user.module'
@@ -38,12 +39,12 @@ import { UserModule } from './user/user.module'
   ],
   providers: [
     {
-      provide: 'APP_GUARD',
+      provide: APP_GUARD,
       useClass: LoginGuard
     },
     {
-      provide: 'PERMISSION_GUARD',
-      useClass: PermissionGuard
+      provide: APP_GUARD,
+      useClass: PermissionsGuard
     }
   ]
 })

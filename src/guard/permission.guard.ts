@@ -1,11 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable
-} from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Request } from 'express'
+import { Observable } from 'rxjs'
+import { PERMISSIONS_KEY } from '../common/custom.decorator'
 import { ToolsShopException } from '../exception/toolsShopException'
 import {
   ToolsShopExceptionEnumCode,
@@ -13,37 +9,41 @@ import {
 } from '../exception/toolsShopExceptionEnum'
 
 @Injectable()
-export class PermissionGuard implements CanActivate {
-  @Inject(Reflector)
-  private reflector: Reflector
+export class PermissionsGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest()
-
-    if (!request.user) {
-      return true
+  canActivate(
+    context: ExecutionContext
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const requiredPermissions = this.reflector.get<string[]>(
+      PERMISSIONS_KEY,
+      context.getHandler()
+    )
+    if (!requiredPermissions) {
+      return true // 如果没有设置所需权限，则默认允许访问
     }
 
-    const permissions = request.user.permissions
+    const request = context.switchToHttp().getRequest()
+    const userPermissions = request.body.permissions // 从请求体中获取权限
+    console.log(userPermissions)
 
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
-      'require-permission',
-      [context.getClass(), context.getHandler()]
+    if (!userPermissions) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.PERMISSION_DENIED,
+        ToolsShopExceptionEnumDesc.PERMISSION_DENIED
+      )
+    }
+
+    // 检查请求中的权限是否包含所需权限
+    const hasPermission = requiredPermissions.every((permission) =>
+      userPermissions.includes(permission)
     )
 
-    if (!requiredPermissions) {
-      return true
-    }
-
-    for (let i = 0; i < requiredPermissions.length; i++) {
-      const curPermission = requiredPermissions[i]
-      const found = permissions.find((item) => item.code === curPermission)
-      if (!found) {
-        throw new ToolsShopException(
-          ToolsShopExceptionEnumCode.PERMISSION_DENIED,
-          ToolsShopExceptionEnumDesc.PERMISSION_DENIED
-        )
-      }
+    if (!hasPermission) {
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.PERMISSION_DENIED,
+        ToolsShopExceptionEnumDesc.PERMISSION_DENIED
+      )
     }
 
     return true
