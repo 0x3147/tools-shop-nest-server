@@ -26,13 +26,10 @@ const buildConnectionOptions = () => {
     database: config[DataBaseEnum.DB_DATABASE],
     // 同步本地的schema与数据库 -> 初始化的时候去使用
     synchronize: true,
-    logging: true,
+    logging: false,
     entities: [`${__dirname}/**/*.entity{.ts,.js}`],
     poolSize: 10,
-    connectorPackage: 'mysql2',
-    extra: {
-      authPlugin: 'sha256_password'
-    }
+    connectorPackage: 'mysql2'
   } as TypeOrmModuleOptions
 }
 
