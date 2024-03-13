@@ -10,6 +10,11 @@ export class UserInitController {
    * ⚠️此接口只能在测试环境下调用！！且只调用一次
    * ⚠️生产环境下添加管理员请导出sql直接在生产环境执行！
    */
+  @Get('role-init')
+  async roleInit() {
+    await this.userInitService.initRolesAndPermissions()
+  }
+
   @Get('admin-init')
   async adminInit() {
     await this.userInitService.adminInit()

@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Logger } from 'winston'
-import { PermissionCode, PermissionDesc } from '../../common/permission'
 import { WINSTON_LOGGER_TOKEN } from '../../common/winston.module'
 import { ToolsShopException } from '../../exception/toolsShopException'
 import {
@@ -17,7 +16,6 @@ import { LoginUserDto } from '../dto/login-user.dto'
 import { RegisterUserDto } from '../dto/register-user.dto'
 import { UpdateUserInfoDto } from '../dto/update-user-info.dto'
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto'
-import { Permission } from '../entity/permission.entity'
 import { Role } from '../entity/role.entity'
 import { User } from '../entity/user.entity'
 import { LoginUserVo } from '../resp/login-vo'
@@ -30,9 +28,6 @@ export class UserService {
 
   @InjectRepository(Role)
   private roleRepository: Repository<Role>
-
-  @InjectRepository(Permission)
-  private permissionRepository: Repository<Permission>
 
   @Inject(WINSTON_LOGGER_TOKEN)
   private logger: Logger
@@ -71,6 +66,10 @@ export class UserService {
       )
     }
 
+    const defaultRole = await this.roleRepository.findOne({
+      where: { name: '普通用户' }
+    })
+
     const newUser = new User()
     const hashPassword = await handleEncrypt(user.password)
     newUser.postId = await this.snowFlakeService.nextId()
@@ -78,19 +77,9 @@ export class UserService {
     newUser.password = hashPassword
     newUser.email = user.email
 
-    const newRole = new Role()
-    newRole.name = '普通用户'
-
-    const newPermission = new Permission()
-    newPermission.code = PermissionCode.VIEW_ONLY
-    newPermission.description = PermissionDesc.VIEW_ONLY
-
-    newUser.roles = [newRole]
-    newRole.permissions = [newPermission]
+    newUser.roles = [defaultRole]
 
     try {
-      await this.permissionRepository.save([newPermission])
-      await this.roleRepository.save([newRole])
       await this.userRepository.save(newUser)
       return '注册成功'
     } catch (e) {
@@ -328,6 +317,49 @@ export class UserService {
         ToolsShopExceptionEnumCode.UNFREEZE_USER_FAIL,
         ToolsShopExceptionEnumDesc.UNFREEZE_USER_FAIL
       )
+    }
+  }
+
+  async upgrade(postId: number | bigint) {
+    // 开始数据库事务
+    const queryRunner =
+      this.roleRepository.manager.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+    try {
+      // 获取“普通用户”角色
+      const normalUserRole = await this.roleRepository.findOne({
+        where: { name: '普通用户' }
+      })
+
+      // 获取“会员用户”角色
+      const memberUserRole = await this.roleRepository.findOne({
+        where: { name: '会员用户' }
+      })
+
+      // 移除用户的“普通用户”角色
+      await queryRunner.manager
+        .createQueryBuilder()
+        .relation(User, 'roles')
+        .of(postId)
+        .remove(normalUserRole)
+
+      // 赋予用户“会员用户”角色
+      await queryRunner.manager
+        .createQueryBuilder()
+        .relation(User, 'roles')
+        .of(postId)
+        .add(memberUserRole)
+
+      // 提交事务
+      await queryRunner.commitTransaction()
+    } catch (e) {
+      // 如果遇到错误，回滚事务
+      this.logger.error(e, UserService)
+      await queryRunner.rollbackTransaction()
+    } finally {
+      // 无论成功还是失败，都需要释放查询运行器
+      await queryRunner.release()
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -58,6 +58,48 @@ export class UserInitService {
     return username
   }
 
+  async initRolesAndPermissions() {
+    try {
+      // 创建权限
+      const haveAllPermission = this.permissionRepository.create({
+        code: PermissionCode.HAVE_ALL_PERMISSIONS,
+        description: PermissionDesc.HAVE_ALL_PERMISSIONS
+      })
+      const viewAndDownload = this.permissionRepository.create({
+        code: PermissionCode.VIEW_AND_DOWNLOAD,
+        description: PermissionDesc.VIEW_AND_DOWNLOAD
+      })
+      const viewOnly = this.permissionRepository.create({
+        code: PermissionCode.VIEW_ONLY,
+        description: PermissionDesc.VIEW_ONLY
+      })
+
+      await this.permissionRepository.save([
+        haveAllPermission,
+        viewAndDownload,
+        viewOnly
+      ])
+
+      const adminRole = this.roleRepository.create({
+        name: '管理员用户',
+        permissions: [haveAllPermission]
+      })
+      const memberRole = this.roleRepository.create({
+        name: '会员用户',
+        permissions: [viewAndDownload]
+      })
+      const userRole = this.roleRepository.create({
+        name: '普通用户',
+        permissions: [viewOnly]
+      })
+
+      // 保存角色到数据库
+      await this.roleRepository.save([adminRole, memberRole, userRole])
+    } catch (error) {
+      throw new HttpException('init error', 500)
+    }
+  }
+
   async adminInit() {
     const adminPass = this.configService.get<string>('ADMIN_PASSWORD')
     const adminEmail = this.configService.get<string>('ADMIN_EMAIL')
@@ -70,18 +112,12 @@ export class UserInitService {
     adminUser.email = adminEmail
     adminUser.isAdmin = true
 
-    const adminRole = new Role()
-    adminRole.name = '超级管理员'
+    const role = await this.roleRepository.findOne({
+      where: { name: '管理员用户' }
+    })
 
-    const adminPermission = new Permission()
-    adminPermission.code = PermissionCode.HAVE_ALL_PERMISSIONS
-    adminPermission.description = PermissionDesc.HAVE_ALL_PERMISSIONS
+    adminUser.roles = [role]
 
-    adminUser.roles = [adminRole]
-    adminRole.permissions = [adminPermission]
-
-    await this.permissionRepository.save([adminPermission])
-    await this.roleRepository.save([adminRole])
     await this.userRepository.save(adminUser)
   }
 
@@ -97,18 +133,12 @@ export class UserInitService {
     commonUser.email = commonEmail
     commonUser.isAdmin = false
 
-    const commonRole = new Role()
-    commonRole.name = '普通用户'
+    const role = await this.roleRepository.findOne({
+      where: { name: '普通用户' }
+    })
 
-    const commonPermission = new Permission()
-    commonPermission.code = PermissionCode.VIEW_ONLY
-    commonPermission.description = PermissionDesc.VIEW_ONLY
+    commonUser.roles = [role]
 
-    commonUser.roles = [commonRole]
-    commonRole.permissions = [commonPermission]
-
-    await this.permissionRepository.save([commonPermission])
-    await this.roleRepository.save([commonRole])
     await this.userRepository.save(commonUser)
   }
 }

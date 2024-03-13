@@ -11,6 +11,7 @@ import { LoginUserDto } from '../dto/login-user.dto'
 import { RegisterUserDto } from '../dto/register-user.dto'
 import { UpdateUserInfoDto } from '../dto/update-user-info.dto'
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto'
+import { UserUpgradeDto } from '../dto/user-upgrade.dto'
 import { UserService } from '../service/user.service'
 
 @Controller('user')
@@ -147,12 +148,17 @@ export class UserController {
   }
 
   @Post('freeze')
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async freeze(@Body() freezeUserDto: FrozenDto) {
     return await this.userService.freeze(BigInt(freezeUserDto.postId))
   }
 
   @Post('unfreeze')
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async unfreeze(@Body() unfreezeUserDto: FrozenDto) {
     return await this.userService.unfreeze(BigInt(unfreezeUserDto.postId))
   }
+
+  @Post('upgrade')
+  async upgradeUser(@Body() userUpgradeDto: UserUpgradeDto) {}
 }
