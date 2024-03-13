@@ -16,6 +16,13 @@ export class QueryUserController {
     return await this.userQueryService.queryCommonUser(queryCommonUserDto)
   }
 
+  @Post('member')
+  @RequireLogin()
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
+  async queryMemberUser(@Body() queryCommonUserDto: QueryCommonUserDto) {
+    return await this.userQueryService.queryMember(queryCommonUserDto)
+  }
+
   @Post('admin')
   @RequireLogin()
   @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)

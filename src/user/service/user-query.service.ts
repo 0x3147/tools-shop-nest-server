@@ -108,6 +108,26 @@ export class UserQueryService {
     )
   }
 
+  async queryMember(queryCommonUserDto: QueryCommonUserDto) {
+    const {
+      pageSize = 1,
+      currentPage = 10,
+      username = '',
+      email = '',
+      isFrozen = null
+    } = queryCommonUserDto
+
+    return await this.makeQuery(
+      false,
+      pageSize,
+      currentPage,
+      username,
+      email,
+      isFrozen,
+      'member'
+    )
+  }
+
   async queryAdminUser(queryCommonUserDto: QueryCommonUserDto) {
     const {
       pageSize = 1,
