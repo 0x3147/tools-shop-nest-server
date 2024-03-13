@@ -12,7 +12,8 @@ export enum ToolsShopExceptionEnumDesc {
   PERMISSION_DENIED = 'sorry~您没有使用该功能的权限',
   FREEZE_USER_FAIL = '冻结用户失败',
   UNFREEZE_USER_FAIL = '解冻用户失败',
-  USER_IS_FROZEN = '账户已冻结，请联系管理员'
+  USER_IS_FROZEN = '账户已冻结，请联系管理员',
+  QUERY_USER_FAIL = '查询用户失败'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -29,5 +30,6 @@ export enum ToolsShopExceptionEnumCode {
   PERMISSION_DENIED = 2002,
   FREEZE_USER_FAIL = 2003,
   UNFREEZE_USER_FAIL = 2004,
-  USER_IS_FROZEN = 2005
+  USER_IS_FROZEN = 2005,
+  QUERY_USER_FAIL = 2006
 }

@@ -321,11 +321,45 @@ export class UserService {
   }
 
   async upgrade(postId: number | bigint) {
-    const user = await this.userRepository.findOne({
-      where: {
-        postId
-      },
-      relations: ['roles', 'roles.permissions']
-    })
+    // 开始数据库事务
+    const queryRunner =
+      this.roleRepository.manager.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+    try {
+      // 获取“普通用户”角色
+      const normalUserRole = await this.roleRepository.findOne({
+        where: { name: '普通用户' }
+      })
+
+      // 获取“会员用户”角色
+      const memberUserRole = await this.roleRepository.findOne({
+        where: { name: '会员用户' }
+      })
+
+      // 移除用户的“普通用户”角色
+      await queryRunner.manager
+        .createQueryBuilder()
+        .relation(User, 'roles')
+        .of(postId)
+        .remove(normalUserRole)
+
+      // 赋予用户“会员用户”角色
+      await queryRunner.manager
+        .createQueryBuilder()
+        .relation(User, 'roles')
+        .of(postId)
+        .add(memberUserRole)
+
+      // 提交事务
+      await queryRunner.commitTransaction()
+    } catch (e) {
+      // 如果遇到错误，回滚事务
+      this.logger.error(e, UserService)
+      await queryRunner.rollbackTransaction()
+    } finally {
+      // 无论成功还是失败，都需要释放查询运行器
+      await queryRunner.release()
+    }
   }
 }
