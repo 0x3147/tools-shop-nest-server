@@ -353,10 +353,16 @@ export class UserService {
 
       // 提交事务
       await queryRunner.commitTransaction()
+
+      return '用户升级为会员成功'
     } catch (e) {
       // 如果遇到错误，回滚事务
       this.logger.error(e, UserService)
       await queryRunner.rollbackTransaction()
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.UPGRADE_USER_FAIL,
+        ToolsShopExceptionEnumDesc.UPGRADE_USER_FAIL
+      )
     } finally {
       // 无论成功还是失败，都需要释放查询运行器
       await queryRunner.release()
