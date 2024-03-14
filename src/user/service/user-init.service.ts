@@ -141,4 +141,25 @@ export class UserInitService {
 
     await this.userRepository.save(commonUser)
   }
+
+  async memberInit() {
+    const memberPass = 'Abc@1234'
+    const memberEmail = this.randomEmail()
+    const memberPostId = await this.snowFlakeService.nextId()
+
+    const memberUser = new User()
+    memberUser.username = this.randomUsername()
+    memberUser.postId = memberPostId
+    memberUser.password = await handleEncrypt(memberPass)
+    memberUser.email = memberEmail
+    memberUser.isAdmin = false
+
+    const role = await this.roleRepository.findOne({
+      where: { name: '会员用户' }
+    })
+
+    memberUser.roles = [role]
+
+    await this.userRepository.save(memberUser)
+  }
 }
