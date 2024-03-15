@@ -1,5 +1,5 @@
 # 使用Node.js 18作为基础镜像
-FROM node:18-alpine
+FROM node:18
 
 # 设置工作目录
 WORKDIR /usr/src/app
@@ -16,10 +16,7 @@ RUN npm install
 COPY . .
 
 # 使用参数控制构建脚本
-RUN if [ "$NODE_ENV" = "production" ]; \
-    then npm run build:prod; \
-    else npm run build:dev; \
-    fi
+RUN npm run build:dev
 
 # 暴露端口
 EXPOSE 3001
