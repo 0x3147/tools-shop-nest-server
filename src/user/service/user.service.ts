@@ -337,21 +337,17 @@ export class UserService {
         where: { name: '会员用户' }
       })
 
-      // 移除用户的“普通用户”角色
-      await queryRunner.manager
-        .createQueryBuilder()
-        .relation(User, 'roles')
-        .of(postId)
-        .remove(normalUserRole)
+      const user = await this.userRepository.findOne({
+        where: { postId },
+        relations: ['roles']
+      })
 
-      // 赋予用户“会员用户”角色
-      await queryRunner.manager
-        .createQueryBuilder()
-        .relation(User, 'roles')
-        .of(postId)
-        .add(memberUserRole)
+      user.roles = user.roles.filter((role) => role.id !== normalUserRole.id)
 
-      // 提交事务
+      user.roles.push(memberUserRole)
+
+      await queryRunner.manager.save(user)
+
       await queryRunner.commitTransaction()
 
       return '用户升级为会员成功'
