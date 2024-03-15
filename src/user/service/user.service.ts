@@ -364,4 +364,50 @@ export class UserService {
       await queryRunner.release()
     }
   }
+
+  async downgrade(postId: number | bigint) {
+    const queryRunner =
+      this.roleRepository.manager.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+
+    try {
+      const normalUserRole = await this.roleRepository.findOne({
+        where: { name: '普通用户' }
+      })
+
+      // 获取“会员用户”角色
+      const memberUserRole = await this.roleRepository.findOne({
+        where: { name: '会员用户' }
+      })
+
+      const user = await this.userRepository.findOne({
+        where: { postId },
+        relations: ['roles']
+      })
+
+      // 移除会员用户角色关联
+      user.roles = user.roles.filter((role) => role.id !== memberUserRole.id)
+
+      // 添加普通用户角色关联
+      if (!user.roles.some((role) => role.id === normalUserRole.id)) {
+        user.roles.push(normalUserRole)
+      }
+
+      await queryRunner.manager.save(user)
+
+      await queryRunner.commitTransaction()
+
+      return '用户降级成功'
+    } catch (e) {
+      this.logger.error(e, UserService)
+      await queryRunner.rollbackTransaction()
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.DOWNGRADE_USER_FAIL,
+        ToolsShopExceptionEnumDesc.DOWNGRADE_USER_FAIL
+      )
+    } finally {
+      await queryRunner.release()
+    }
+  }
 }

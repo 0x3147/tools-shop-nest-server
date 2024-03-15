@@ -14,7 +14,8 @@ export enum ToolsShopExceptionEnumDesc {
   UNFREEZE_USER_FAIL = '解冻用户失败',
   USER_IS_FROZEN = '账户已冻结，请联系管理员',
   QUERY_USER_FAIL = '查询用户失败',
-  UPGRADE_USER_FAIL = '升级用户失败'
+  UPGRADE_USER_FAIL = '升级用户失败',
+  DOWNGRADE_USER_FAIL = '降级用户失败'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -33,5 +34,6 @@ export enum ToolsShopExceptionEnumCode {
   UNFREEZE_USER_FAIL = 2004,
   USER_IS_FROZEN = 2005,
   QUERY_USER_FAIL = 2006,
-  UPGRADE_USER_FAIL = 2007
+  UPGRADE_USER_FAIL = 2007,
+  DOWNGRADE_USER_FAIL = 2008
 }
