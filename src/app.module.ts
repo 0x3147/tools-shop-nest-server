@@ -8,6 +8,7 @@ import { WinstonModule } from './common/winston.module'
 import { EmailModule } from './email/email.module'
 import { LoginGuard } from './guard/login.guard'
 import { PermissionsGuard } from './guard/permission.guard'
+import { OssModule } from './oss/oss.module'
 import { RedisModule } from './redis/redis.module'
 import { SnowFlakeModule } from './snow-flake/snow-flake.module'
 import { UserModule } from './user/user.module'
@@ -35,7 +36,8 @@ import { UserModule } from './user/user.module'
     UserModule,
     SnowFlakeModule,
     EmailModule,
-    RedisModule
+    RedisModule,
+    OssModule
   ],
   providers: [
     {
