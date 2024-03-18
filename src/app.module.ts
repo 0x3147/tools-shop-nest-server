@@ -12,6 +12,7 @@ import { OssModule } from './oss/oss.module'
 import { RedisModule } from './redis/redis.module'
 import { SnowFlakeModule } from './snow-flake/snow-flake.module'
 import { UserModule } from './user/user.module'
+import { ProductionModule } from './production/production.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { UserModule } from './user/user.module'
     SnowFlakeModule,
     EmailModule,
     RedisModule,
-    OssModule
+    OssModule,
+    ProductionModule
   ],
   providers: [
     {
