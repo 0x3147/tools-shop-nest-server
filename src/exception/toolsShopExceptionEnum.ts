@@ -16,7 +16,8 @@ export enum ToolsShopExceptionEnumDesc {
   QUERY_USER_FAIL = '查询用户失败',
   UPGRADE_USER_FAIL = '升级用户失败',
   DOWNGRADE_USER_FAIL = '降级用户失败',
-  UPLOAD_TO_OSS_FAIL = '上传到OSS失败'
+  UPLOAD_TO_OSS_FAIL = '上传到OSS失败',
+  DOWNLOAD_TO_OSS_FAIL = '下载文件失败',
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -37,5 +38,6 @@ export enum ToolsShopExceptionEnumCode {
   QUERY_USER_FAIL = 2006,
   UPGRADE_USER_FAIL = 2007,
   DOWNGRADE_USER_FAIL = 2008,
-  UPLOAD_TO_OSS_FAIL = 2009
+  UPLOAD_TO_OSS_FAIL = 3001,
+  DOWNLOAD_TO_OSS_FAIL = 3002,
 }

@@ -1,6 +1,8 @@
 import {
   Controller,
+  Get,
   Inject,
+  Param,
   Post,
   Res,
   UploadedFile,
@@ -17,7 +19,7 @@ import {
 } from '../exception/toolsShopExceptionEnum'
 import { OssService } from './oss.service'
 
-@Controller('oss')
+@Controller('files')
 export class OssController {
   @Inject(OssService)
   ossService: OssService
@@ -58,6 +60,19 @@ export class OssController {
       throw new ToolsShopException(
         ToolsShopExceptionEnumCode.UPLOAD_TO_OSS_FAIL,
         ToolsShopExceptionEnumDesc.UPLOAD_TO_OSS_FAIL
+      )
+    }
+  }
+
+  @Get('download/:objectName')
+  async downloadFile(@Param('objectName') objectName: string) {
+    try {
+      return await this.ossService.getSignedUrl(objectName, 3600)
+    } catch (error) {
+      this.logger.error(error, OssController)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.DOWNLOAD_TO_OSS_FAIL,
+        ToolsShopExceptionEnumDesc.DOWNLOAD_TO_OSS_FAIL
       )
     }
   }

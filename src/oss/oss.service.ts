@@ -34,4 +34,11 @@ export class OssService {
       // partSize: 1024 * 1024,
     })
   }
+
+  async getSignedUrl(objectName: string, expires: number): Promise<string> {
+    return await this.client.asyncSignatureUrl(objectName, {
+      expires,
+      method: 'GET'
+    })
+  }
 }
