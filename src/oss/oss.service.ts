@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as OSS from 'ali-oss'
+import dayjs from 'dayjs'
 
 @Injectable()
 export class OssService {
@@ -15,30 +16,28 @@ export class OssService {
     })
   }
 
-  // 普通上传
-  async commonUpload(
-    file: Buffer | NodeJS.ReadableStream,
-    fileName: string
-  ): Promise<OSS.PutObjectResult> {
-    return await this.client.put(fileName, file)
-  }
+  async getSignature() {
+    // 使用 dayjs 设置过期时间为1天之后
+    const expiration = dayjs().add(1, 'day').toISOString()
+    const policy = {
+      expiration,
+      conditions: [['content-length-range', 0, 10485760000]]
+    }
 
-  // 分片上传
-  async multipartUpload(
-    file: Buffer | NodeJS.ReadableStream,
-    fileName: string
-  ): Promise<OSS.CompleteMultipartUploadResult> {
-    return await this.client.multipartUpload(fileName, file, {
-      // 这里可以设置分片上传的特定选项，如并行上传的分片数量等
-      // parallel: 4,
-      // partSize: 1024 * 1024,
-    })
-  }
+    const formData = this.client.calculatePostSignature(policy)
 
-  async getSignedUrl(objectName: string, expires: number): Promise<string> {
-    return await this.client.asyncSignatureUrl(objectName, {
-      expires,
-      method: 'GET'
-    })
+    const location = await this.client.getBucketLocation(
+      this.configService.get('OSS_BUCKET')
+    )
+
+    const host = `http://${this.configService.get('OSS_BUCKET')}.${location.location}.aliyuncs.com`
+
+    return {
+      expire: dayjs().add(1, 'days').unix().toString(),
+      policy: formData.policy,
+      signature: formData.Signature,
+      accessId: formData.OSSAccessKeyId,
+      host
+    }
   }
 }
