@@ -25,7 +25,6 @@ export class PermissionsGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest()
     const userPermissions = request.body.permissions // 从请求体中获取权限
-    console.log(userPermissions)
 
     if (!userPermissions) {
       throw new ToolsShopException(

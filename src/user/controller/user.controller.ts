@@ -162,6 +162,12 @@ export class UserController {
   @Post('upgrade')
   @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async upgradeUser(@Body() userUpgradeDto: UserUpgradeDto) {
-    return await this.userService.upgrade(BigInt(BigInt(userUpgradeDto.postId)))
+    return await this.userService.upgrade(BigInt(userUpgradeDto.postId))
+  }
+
+  @Post('downgrade')
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
+  async downgradeUser(@Body() userUpgradeDto: UserUpgradeDto) {
+    return await this.userService.downgrade(BigInt(userUpgradeDto.postId))
   }
 }
