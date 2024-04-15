@@ -1,11 +1,21 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as OSS from 'ali-oss'
 import dayjs from 'dayjs'
+import { Logger } from 'winston'
+import { WINSTON_LOGGER_TOKEN } from '../common/winston.module'
+import { ToolsShopException } from '../exception/toolsShopException'
+import {
+  ToolsShopExceptionEnumCode,
+  ToolsShopExceptionEnumDesc
+} from '../exception/toolsShopExceptionEnum'
 
 @Injectable()
 export class OssService {
   private readonly client: OSS
+
+  @Inject(WINSTON_LOGGER_TOKEN)
+  private logger: Logger
 
   constructor(private configService: ConfigService) {
     this.client = new OSS({
@@ -38,6 +48,22 @@ export class OssService {
       signature: formData.Signature,
       accessId: formData.OSSAccessKeyId,
       host
+    }
+  }
+
+  async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
+    try {
+      const result = await this.client.put(
+        folder + file.originalname,
+        file.buffer
+      )
+      return result.url // 返回文件的URL
+    } catch (e) {
+      this.logger.error(e, OssService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.UPLOAD_TO_OSS_FAIL,
+        ToolsShopExceptionEnumDesc.UPLOAD_TO_OSS_FAIL
+      )
     }
   }
 }
