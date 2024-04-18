@@ -9,6 +9,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import { OssService } from '../oss/oss.service'
 import { CreateProductDto } from './dto/create-product.dto'
+import { FindProductsDto } from './dto/find-products.dto'
 import { ProdControlDto } from './dto/prod-control.dto'
 import { ProductionService } from './production.service'
 
@@ -21,7 +22,9 @@ export class ProductionController {
   ossService: OssService
 
   @Post('list')
-  async getProductionList() {}
+  async getProductionList(@Body() findProductsDto: FindProductsDto) {
+    return await this.productionService.findProducts(findProductsDto)
+  }
 
   @Post('add')
   @UseInterceptors(

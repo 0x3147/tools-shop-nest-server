@@ -10,6 +10,7 @@ import {
 } from '../exception/toolsShopExceptionEnum'
 import { SnowFlakeService } from '../snow-flake/snow-flake.service'
 import { CreateProductDto } from './dto/create-product.dto'
+import { FindProductsDto } from './dto/find-products.dto'
 import { Product } from './entity/product.entity'
 
 @Injectable()
@@ -22,6 +23,25 @@ export class ProductionService {
 
   @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService
+
+  async findProducts(findProductsDto: FindProductsDto): Promise<Product[]> {
+    const { name, isArchived } = findProductsDto
+    // 构建查询对象
+    const query = this.productRepository.createQueryBuilder('product')
+
+    if (name) {
+      // 如果有商品名，则添加模糊查询条件
+      query.andWhere('product.name LIKE :name', { name: `%${name}%` })
+    }
+
+    if (isArchived !== undefined) {
+      // 如果有上下架状态，则添加精确匹配条件
+      query.andWhere('product.isArchived = :isArchived', { isArchived })
+    }
+
+    // 执行查询返回结果
+    return query.getMany()
+  }
 
   async createProduct(
     createProductDto: CreateProductDto,
