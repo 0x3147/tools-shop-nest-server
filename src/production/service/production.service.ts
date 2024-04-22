@@ -12,12 +12,16 @@ import { SnowFlakeService } from '../../snow-flake/snow-flake.service'
 import { CreateProductDto } from '../dto/create-product.dto'
 import { FindProductsDto } from '../dto/find-products.dto'
 import { Product } from '../entity/product.entity'
+import { Tag } from '../entity/tag.entity'
 import { AdminProdList } from '../resp/admin-prod-list.vo'
 
 @Injectable()
 export class ProductionService {
   @InjectRepository(Product)
   private productRepository: Repository<Product>
+
+  @InjectRepository(Tag)
+  private tagRepository: Repository<Tag>
 
   @Inject(WINSTON_LOGGER_TOKEN)
   private logger: Logger
@@ -88,15 +92,32 @@ export class ProductionService {
     imageUrl: string,
     downloadUrl: string
   ): Promise<string> {
-    const product = new Product()
-    product.postId = await this.snowFlakeService.nextId()
-    product.name = createProductDto.name
-    product.description = createProductDto.description
-    product.imageUrl = imageUrl
-    product.downloadUrl = downloadUrl
-
     try {
+      const product = new Product()
+
+      if (createProductDto.tags && createProductDto.tags.length) {
+        // 确定这些标签是否已存在，或者需要创建新的标签
+        // 关联商品与标签
+        product.tags = await Promise.all(
+          createProductDto.tags.map(async (tagName) => {
+            let tag = await this.tagRepository.findOneBy({ name: tagName })
+            if (!tag) {
+              tag = this.tagRepository.create({ name: tagName })
+              await this.tagRepository.save(tag) // 保证标签已经保存
+            }
+            return tag
+          })
+        )
+      }
+
+      product.postId = await this.snowFlakeService.nextId()
+      product.name = createProductDto.name
+      product.description = createProductDto.description
+      product.imageUrl = imageUrl
+      product.downloadUrl = downloadUrl
+
       await this.productRepository.save(product)
+
       return '创建产品成功'
     } catch (e) {
       this.logger.error(e, ProductionService)
