@@ -7,8 +7,10 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
+import { Logger } from 'winston'
 import { RequireLogin, RequirePermissions } from '../../common/custom.decorator'
 import { PermissionCode } from '../../common/permission'
+import { WINSTON_LOGGER_TOKEN } from '../../common/winston.module'
 import { OssService } from '../../oss/oss.service'
 import { CreateProductDto } from '../dto/create-product.dto'
 import { FindProductsDto } from '../dto/find-products.dto'
@@ -22,6 +24,9 @@ export class ProductionController {
 
   @Inject(OssService)
   ossService: OssService
+
+  @Inject(WINSTON_LOGGER_TOKEN)
+  private logger: Logger
 
   @Post('list')
   @RequireLogin()
@@ -43,21 +48,25 @@ export class ProductionController {
     @UploadedFiles() files: any,
     @Body() createProductDto: CreateProductDto
   ) {
-    const imageFile = files.image[0]
-    const productFile = files.productFile[0]
+    try {
+      const imageFile = files.image[0]
+      const productFile = files.productFile[0]
 
-    const imageUrl = await this.ossService.uploadFile(imageFile, 'images/')
+      const imageUrl = await this.ossService.uploadFile(imageFile, 'images/')
 
-    const downloadUrl = await this.ossService.uploadFile(
-      productFile,
-      'products/'
-    )
+      const downloadUrl = await this.ossService.uploadFile(
+        productFile,
+        'products/'
+      )
 
-    return await this.productionService.createProduct(
-      createProductDto,
-      imageUrl,
-      downloadUrl
-    )
+      return await this.productionService.createProduct(
+        createProductDto,
+        imageUrl,
+        downloadUrl
+      )
+    } catch (e) {
+      this.logger.error(e, ProductionController)
+    }
   }
 
   @Post('update')
