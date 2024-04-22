@@ -26,34 +26,61 @@ export class ProductionService {
   private snowFlakeService: SnowFlakeService
 
   async findProducts(findProductsDto: FindProductsDto): Promise<AdminProdList> {
-    const { name, isArchived, currentPage = 1, pageSize = 10 } = findProductsDto
-    // 构建查询对象
-    const query = this.productRepository.createQueryBuilder('product')
+    const {
+      name,
+      isArchived,
+      tag,
+      currentPage = 1,
+      pageSize = 10
+    } = findProductsDto
 
-    if (name) {
-      // 如果有商品名，则添加模糊查询条件
-      query.andWhere('product.name LIKE :name', { name: `%${name}%` })
+    try {
+      const skip = (currentPage - 1) * pageSize
+
+      let query = this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.tags', 'tag')
+
+      if (name) {
+        query = query.andWhere('product.name LIKE :name', { name: `%${name}%` })
+      }
+      if (isArchived !== undefined) {
+        query = query.andWhere('product.isArchived = :isArchived', {
+          isArchived
+        })
+      }
+      if (tag) {
+        query = query.andWhere('tag.name = :tagName', { tagName: tag })
+      }
+
+      const [result, total] = await query
+        .skip(skip)
+        .take(pageSize)
+        .getManyAndCount()
+
+      const formattedData = result.map((product) => ({
+        postId: product.postId,
+        name: product.name,
+        imageUrl: product.imageUrl,
+        description: product.description,
+        downloadUrl: product.downloadUrl,
+        tags: product.tags.map((tag) => tag.name)
+      }))
+
+      const resp = new AdminProdList()
+      resp.tableData = formattedData
+      resp.total = total
+      resp.currentPage = currentPage
+      resp.lastPage = Math.ceil(total / pageSize)
+
+      return resp
+    } catch (e) {
+      this.logger.error(e)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.QUERY_PRODUCT_FAIL,
+        ToolsShopExceptionEnumDesc.QUERY_PRODUCT_FAIL
+      )
     }
-
-    if (isArchived !== undefined) {
-      // 如果有上下架状态，则添加精确匹配条件
-      query.andWhere('product.isArchived = :isArchived', { isArchived })
-    }
-
-    const total = await query.getCount()
-
-    query.skip((currentPage - 1) * pageSize).take(pageSize)
-
-    const products = await query.getMany()
-
-    const lastPage = Math.ceil(total / pageSize)
-    const result = new AdminProdList()
-    result.tableData = products
-    result.total = total
-    result.currentPage = currentPage
-    result.lastPage = lastPage
-
-    return result
   }
 
   async createProduct(

@@ -5,6 +5,8 @@ export class FindProductsDto {
 
   isArchived?: boolean
 
+  tag?: string
+
   @IsNotEmpty({
     message: '当前页信息不能为空'
   })

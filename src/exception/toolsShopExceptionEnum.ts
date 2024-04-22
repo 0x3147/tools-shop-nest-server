@@ -24,6 +24,7 @@ export enum ToolsShopExceptionEnumDesc {
   DELETE_PRODUCT_FAIL = '删除产品失败',
   PRODUCT_IS_ARCHIVED = '产品已下架',
   PRODUCT_IS_NOT_ARCHIVED = '产品未下架',
+  QUERY_PRODUCT_FAIL = '查询产品出错'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -52,4 +53,5 @@ export enum ToolsShopExceptionEnumCode {
   DELETE_PRODUCT_FAIL = 3006,
   PRODUCT_IS_ARCHIVED = 3007,
   PRODUCT_IS_NOT_ARCHIVED = 3008,
+  QUERY_PRODUCT_FAIL = 3009
 }

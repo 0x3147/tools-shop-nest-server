@@ -3,6 +3,8 @@ type ProductInfo = {
 
   name: string
 
+  tags: string[]
+
   imageUrl: string
 
   description: string
