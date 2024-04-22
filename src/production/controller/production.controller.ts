@@ -7,11 +7,13 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
-import { OssService } from '../oss/oss.service'
-import { CreateProductDto } from './dto/create-product.dto'
-import { FindProductsDto } from './dto/find-products.dto'
-import { ProdControlDto } from './dto/prod-control.dto'
-import { ProductionService } from './production.service'
+import { RequireLogin, RequirePermissions } from '../../common/custom.decorator'
+import { PermissionCode } from '../../common/permission'
+import { OssService } from '../../oss/oss.service'
+import { CreateProductDto } from '../dto/create-product.dto'
+import { FindProductsDto } from '../dto/find-products.dto'
+import { ProdControlDto } from '../dto/prod-control.dto'
+import { ProductionService } from '../service/production.service'
 
 @Controller('prod')
 export class ProductionController {
@@ -22,6 +24,8 @@ export class ProductionController {
   ossService: OssService
 
   @Post('list')
+  @RequireLogin()
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async getProductionList(@Body() findProductsDto: FindProductsDto) {
     return await this.productionService.findProducts(findProductsDto)
   }
@@ -33,6 +37,8 @@ export class ProductionController {
       { name: 'productFile', maxCount: 1 }
     ])
   )
+  @RequireLogin()
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async addProduction(
     @UploadedFiles() files: any,
     @Body() createProductDto: CreateProductDto
@@ -58,6 +64,8 @@ export class ProductionController {
   async updateProduction() {}
 
   @Post('remove')
+  @RequireLogin()
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async removeProduction(@Body() prodControlDto: ProdControlDto) {
     return await this.productionService.removeProduct(
       BigInt(prodControlDto.postId)
@@ -65,6 +73,8 @@ export class ProductionController {
   }
 
   @Post('delete')
+  @RequireLogin()
+  @RequirePermissions(PermissionCode.HAVE_ALL_PERMISSIONS)
   async deleteProduction(@Body() prodControlDto: ProdControlDto) {
     return await this.productionService.deleteProduct(
       BigInt(prodControlDto.postId)

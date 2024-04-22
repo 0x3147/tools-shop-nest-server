@@ -1,4 +1,4 @@
-interface UserInfo {
+type UserInfo = {
   postId: number | bigint
 
   username: string

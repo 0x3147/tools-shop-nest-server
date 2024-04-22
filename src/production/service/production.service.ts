@@ -2,16 +2,17 @@ import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Logger } from 'winston'
-import { WINSTON_LOGGER_TOKEN } from '../common/winston.module'
-import { ToolsShopException } from '../exception/toolsShopException'
+import { WINSTON_LOGGER_TOKEN } from '../../common/winston.module'
+import { ToolsShopException } from '../../exception/toolsShopException'
 import {
   ToolsShopExceptionEnumCode,
   ToolsShopExceptionEnumDesc
-} from '../exception/toolsShopExceptionEnum'
-import { SnowFlakeService } from '../snow-flake/snow-flake.service'
-import { CreateProductDto } from './dto/create-product.dto'
-import { FindProductsDto } from './dto/find-products.dto'
-import { Product } from './entity/product.entity'
+} from '../../exception/toolsShopExceptionEnum'
+import { SnowFlakeService } from '../../snow-flake/snow-flake.service'
+import { CreateProductDto } from '../dto/create-product.dto'
+import { FindProductsDto } from '../dto/find-products.dto'
+import { Product } from '../entity/product.entity'
+import { AdminProdList } from '../resp/admin-prod-list.vo'
 
 @Injectable()
 export class ProductionService {
@@ -24,8 +25,8 @@ export class ProductionService {
   @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService
 
-  async findProducts(findProductsDto: FindProductsDto): Promise<Product[]> {
-    const { name, isArchived } = findProductsDto
+  async findProducts(findProductsDto: FindProductsDto): Promise<AdminProdList> {
+    const { name, isArchived, currentPage = 1, pageSize = 10 } = findProductsDto
     // 构建查询对象
     const query = this.productRepository.createQueryBuilder('product')
 
@@ -39,8 +40,20 @@ export class ProductionService {
       query.andWhere('product.isArchived = :isArchived', { isArchived })
     }
 
-    // 执行查询返回结果
-    return query.getMany()
+    const total = await query.getCount()
+
+    query.skip((currentPage - 1) * pageSize).take(pageSize)
+
+    const products = await query.getMany()
+
+    const lastPage = Math.ceil(total / pageSize)
+    const result = new AdminProdList()
+    result.tableData = products
+    result.total = total
+    result.currentPage = currentPage
+    result.lastPage = lastPage
+
+    return result
   }
 
   async createProduct(

@@ -1,4 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm'
+import { Tag } from './tag.entity'
 
 @Entity('products')
 export class Product {
@@ -25,4 +34,16 @@ export class Product {
 
   @Column({ type: 'varchar', length: 255 })
   downloadUrl: string // 商品下载链接
+
+  @ManyToMany(() => Tag, (tag) => tag.products)
+  @JoinTable({
+    name: 'product_tags'
+  })
+  tags: Tag[]
+
+  @CreateDateColumn({ type: 'timestamp', comment: '创建时间' })
+  createTime: Date
+
+  @UpdateDateColumn({ type: 'timestamp', comment: '更新时间' })
+  updateTime: Date
 }
