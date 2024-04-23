@@ -23,6 +23,9 @@ export class Product {
   @Column({ default: false })
   isArchived: boolean // 商品是否被下架
 
+  @Column({ default: false })
+  isFree: boolean
+
   @Column({ type: 'varchar', length: 255 })
   imageUrl: string // 商品图片链接
 

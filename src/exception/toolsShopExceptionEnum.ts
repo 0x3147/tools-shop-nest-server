@@ -28,7 +28,8 @@ export enum ToolsShopExceptionEnumDesc {
   TAG_ALREADY_EXISTS = '标签已存在',
   CREATE_TAG_FAIL = '创建标签失败',
   TAG_HAS_REFERENCE = '标签已被引用, 无法更新或删除',
-  TAG_DELETE_FAIL = '删除标签失败'
+  TAG_DELETE_FAIL = '删除标签失败',
+  QUERY_TAG_FAIL = '查询标签失败'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -61,5 +62,6 @@ export enum ToolsShopExceptionEnumCode {
   TAG_ALREADY_EXISTS = 3010,
   CREATE_TAG_FAIL = 3011,
   TAG_HAS_REFERENCE = 3012,
-  TAG_DELETE_FAIL = 3013
+  TAG_DELETE_FAIL = 3013,
+  QUERY_TAG_FAIL = 3014
 }

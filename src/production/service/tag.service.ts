@@ -10,8 +10,10 @@ import {
 } from '../../exception/toolsShopExceptionEnum'
 import { SnowFlakeService } from '../../snow-flake/snow-flake.service'
 import { CreateTagDto } from '../dto/create-tag.dto'
+import { FindTagDto } from '../dto/find-tag.dto'
 import { UpdateTagDto } from '../dto/update-tag.dto'
 import { Tag } from '../entity/tag.entity'
+import { TagList } from '../resp/tag.vo'
 
 @Injectable()
 export class TagService {
@@ -23,6 +25,43 @@ export class TagService {
 
   @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService
+
+  async findTags(findTagDto: FindTagDto) {
+    const { name, currentPage, pageSize } = findTagDto
+
+    try {
+      const skip = (currentPage - 1) * pageSize
+
+      const queryBuilder = this.tagRepository.createQueryBuilder('tag')
+
+      if (name) {
+        queryBuilder.andWhere('tag.name LIKE :name', { name: `%${name}%` })
+      }
+
+      const [tags, total] = await queryBuilder
+        .skip(skip)
+        .take(pageSize)
+        .getManyAndCount()
+
+      const resp = new TagList()
+      resp.tableData = tags.map((tag) => ({
+        postId: tag.postId,
+        name: tag.name,
+        createdAt: tag.createdAt
+      }))
+      resp.total = total
+      resp.currentPage = currentPage
+      resp.lastPage = Math.ceil(total / pageSize)
+
+      return resp
+    } catch (e) {
+      this.logger.error(e, TagService)
+      throw new ToolsShopException(
+        ToolsShopExceptionEnumCode.QUERY_TAG_FAIL,
+        ToolsShopExceptionEnumDesc.QUERY_TAG_FAIL
+      )
+    }
+  }
 
   async create(createTagDto: CreateTagDto) {
     const { name } = createTagDto

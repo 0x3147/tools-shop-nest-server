@@ -5,6 +5,8 @@ export class FindProductsDto {
 
   isArchived?: boolean
 
+  isFree?: boolean
+
   tag?: string
 
   @IsNotEmpty({

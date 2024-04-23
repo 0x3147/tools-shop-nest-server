@@ -37,6 +37,7 @@ export class ProductionService {
     const {
       name,
       isArchived,
+      isFree,
       tag,
       currentPage = 1,
       pageSize = 10
@@ -56,6 +57,9 @@ export class ProductionService {
         query = query.andWhere('product.isArchived = :isArchived', {
           isArchived
         })
+      }
+      if (isFree !== undefined) {
+        query = query.andWhere('product.isFree = :isFree', { isFree })
       }
       if (tag) {
         query = query.andWhere('tag.name = :tagName', { tagName: tag })
