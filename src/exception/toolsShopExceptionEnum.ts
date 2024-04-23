@@ -24,7 +24,11 @@ export enum ToolsShopExceptionEnumDesc {
   DELETE_PRODUCT_FAIL = '删除产品失败',
   PRODUCT_IS_ARCHIVED = '产品已下架',
   PRODUCT_IS_NOT_ARCHIVED = '产品未下架',
-  QUERY_PRODUCT_FAIL = '查询产品出错'
+  QUERY_PRODUCT_FAIL = '查询产品出错',
+  TAG_ALREADY_EXISTS = '标签已存在',
+  CREATE_TAG_FAIL = '创建标签失败',
+  TAG_HAS_REFERENCE = '标签已被引用, 无法更新或删除',
+  TAG_DELETE_FAIL = '删除标签失败'
 }
 
 export enum ToolsShopExceptionEnumCode {
@@ -53,5 +57,9 @@ export enum ToolsShopExceptionEnumCode {
   DELETE_PRODUCT_FAIL = 3006,
   PRODUCT_IS_ARCHIVED = 3007,
   PRODUCT_IS_NOT_ARCHIVED = 3008,
-  QUERY_PRODUCT_FAIL = 3009
+  QUERY_PRODUCT_FAIL = 3009,
+  TAG_ALREADY_EXISTS = 3010,
+  CREATE_TAG_FAIL = 3011,
+  TAG_HAS_REFERENCE = 3012,
+  TAG_DELETE_FAIL = 3013
 }

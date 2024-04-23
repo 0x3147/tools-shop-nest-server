@@ -14,6 +14,7 @@ import { FindProductsDto } from '../dto/find-products.dto'
 import { Product } from '../entity/product.entity'
 import { Tag } from '../entity/tag.entity'
 import { AdminProdList } from '../resp/admin-prod-list.vo'
+import { TagService } from './tag.service'
 
 @Injectable()
 export class ProductionService {
@@ -28,6 +29,9 @@ export class ProductionService {
 
   @Inject(SnowFlakeService)
   private snowFlakeService: SnowFlakeService
+
+  @Inject(TagService)
+  private tagService: TagService
 
   async findProducts(findProductsDto: FindProductsDto): Promise<AdminProdList> {
     const {
@@ -96,10 +100,9 @@ export class ProductionService {
         // 关联商品与标签
         product.tags = await Promise.all(
           createProductDto.tags.map(async (tagName) => {
-            let tag = await this.tagRepository.findOneBy({ name: tagName })
+            const tag = await this.tagRepository.findOneBy({ name: tagName })
             if (!tag) {
-              tag = this.tagRepository.create({ name: tagName })
-              await this.tagRepository.save(tag) // 保证标签已经保存
+              await this.tagService.create({ name: tagName })
             }
             return tag
           })
@@ -153,8 +156,8 @@ export class ProductionService {
 
     if (result.affected === 0) {
       throw new ToolsShopException(
-        ToolsShopExceptionEnumCode.DELETE_PRODUCT_FAIL,
-        ToolsShopExceptionEnumDesc.DELETE_PRODUCT_FAIL
+        ToolsShopExceptionEnumCode.TAG_DELETE_FAIL,
+        ToolsShopExceptionEnumDesc.TAG_DELETE_FAIL
       )
     }
 
