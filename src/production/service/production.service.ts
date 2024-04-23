@@ -63,11 +63,7 @@ export class ProductionService {
         .getManyAndCount()
 
       const formattedData = result.map((product) => ({
-        postId: product.postId,
-        name: product.name,
-        imageUrl: product.imageUrl,
-        description: product.description,
-        downloadUrl: product.downloadUrl,
+        ...product,
         tags: product.tags.map((tag) => tag.name)
       }))
 
