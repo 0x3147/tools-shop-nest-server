@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as OSS from 'ali-oss'
-import dayjs from 'dayjs'
+import * as dayjs from 'dayjs'
 import { Logger } from 'winston'
 import { WINSTON_LOGGER_TOKEN } from '../common/winston.module'
 import { ToolsShopException } from '../exception/toolsShopException'
@@ -29,12 +29,27 @@ export class OssService {
   async getSignature() {
     // 使用 dayjs 设置过期时间为1天之后
     const expiration = dayjs().add(1, 'day').toISOString()
-    const policy = {
+
+    const policyForImages = {
       expiration,
-      conditions: [['content-length-range', 0, 10485760000]]
+      conditions: [
+        ['content-length-range', 0, 10485760000],
+        ['starts-with', '$key', 'images/']
+      ]
     }
 
-    const formData = this.client.calculatePostSignature(policy)
+    const policyForZips = {
+      expiration,
+      conditions: [
+        ['content-length-range', 0, 10485760000],
+        ['starts-with', '$key', 'zips/']
+      ]
+    }
+
+    const formDataForImages =
+      this.client.calculatePostSignature(policyForImages)
+
+    const formDataForZips = this.client.calculatePostSignature(policyForZips)
 
     const location = await this.client.getBucketLocation(
       this.configService.get('OSS_BUCKET')
@@ -44,9 +59,16 @@ export class OssService {
 
     return {
       expire: dayjs().add(1, 'days').unix().toString(),
-      policy: formData.policy,
-      signature: formData.Signature,
-      accessId: formData.OSSAccessKeyId,
+      images: {
+        policy: formDataForImages.policy,
+        signature: formDataForImages.Signature,
+        accessId: formDataForImages.OSSAccessKeyId
+      },
+      zips: {
+        policy: formDataForZips.policy,
+        signature: formDataForZips.Signature,
+        accessId: formDataForZips.OSSAccessKeyId
+      },
       host
     }
   }
